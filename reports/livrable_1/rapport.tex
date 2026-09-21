@@ -18,7 +18,8 @@
 \usepackage{hyperref}
 \hypersetup{hidelinks}
 \usepackage{tikz}
-\usetikzlibrary{positioning}
+\usetikzlibrary{positioning, shapes.geometric, arrows.meta, calc, fit, backgrounds, shadows}
+\usepackage{rotating}
 \usepackage{longtable}
 
 
@@ -31,6 +32,37 @@
 \definecolor{mauve}{rgb}{0.58,0,0.82}
 \definecolor{addrred}{rgb}{0.93,0.43,0.43}
 \definecolor{commentgray}{rgb}{0.45,0.45,0.45}
+
+% Palette du schéma conceptuel
+\definecolor{hubbg}{RGB}{23,48,77}
+\definecolor{hubborder}{RGB}{23,48,77}
+\definecolor{hubrule}{RGB}{150,178,206}
+\definecolor{cardink}{RGB}{33,41,54}
+\definecolor{cardline}{RGB}{160,172,186}
+\definecolor{whyborder}{RGB}{31,92,139}
+\definecolor{whybg}{RGB}{243,248,252}
+\definecolor{whatborder}{RGB}{34,116,80}
+\definecolor{whatbg}{RGB}{243,250,246}
+\definecolor{howborder}{RGB}{181,84,39}
+\definecolor{howbg}{RGB}{253,247,243}
+\definecolor{outborder}{RGB}{104,72,140}
+\definecolor{outbg}{RGB}{249,246,253}
+\definecolor{defiborder}{RGB}{166,54,45}
+\definecolor{defibg}{RGB}{253,245,244}
+\definecolor{whoborder}{RGB}{71,85,105}
+\definecolor{whobg}{RGB}{246,248,250}
+
+% Outils de mise en forme des cartes du schéma conceptuel
+\newlist{cbul}{itemize}{1}
+\setlist[cbul]{leftmargin=3.4mm, labelsep=1.7mm, itemsep=2.6pt, topsep=0pt,
+               parsep=0pt, label=\textcolor{cardaccent}{\rule[0.55ex]{1.4mm}{0.6pt}}}
+\colorlet{cardaccent}{cardline}
+\newcommand{\cardsetup}[1]{%
+    \colorlet{cardaccent}{#1}\raggedright
+    \hyphenpenalty=10000\exhyphenpenalty=10000\relax}
+\newcommand{\cardtitle}[2]{%
+    {\bfseries\color{#1}#2}\\[2.5pt]
+    {\color{#1!35!white}\rule{\linewidth}{0.7pt}}\\[3.5pt]}
 
 \lstdefinelanguage{MicroAsm}{
     sensitive=true,
@@ -165,5 +197,122 @@ Le socle de code fourni repose sur le modèle de \textbf{Hodgkin-Huxley}. Il s'a
 \textbf{Problématique.} Comment accélérer la simulation de réseaux de neurones de \textbf{Hodgkin-Huxley} couplés lorsque la taille du \textbf{connectome} augmente, et quelle stratégie \textbf{GPU} offre le meilleur gain par rapport à la référence \textbf{CPU}, à résultats équivalents ?
 
 \textbf{La vraie question du projet.} Le laboratoire de M.~Pirog peut-il, grâce aux serveurs Junia équipés de \textbf{RTX~5090}, simuler des réseaux de neurones assez grands pour être utiles à la recherche, dans un temps acceptable ?
+
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[
+    >={Stealth[length=2.4mm,width=1.9mm]},
+    % --- bloc central : la problematique ---
+    hub/.style={
+        rectangle, rounded corners=5pt, align=center,
+        fill=hubbg, draw=hubbg, line width=1pt,
+        text=white, inner sep=0pt
+    },
+    % --- carte d'axe ---
+    card/.style={
+        rectangle, rounded corners=4pt, align=left,
+        line width=1pt, inner sep=8pt, font=\footnotesize,
+        text=cardink
+    },
+    % --- liaisons : un seul gris, la couleur reste aux cartes ---
+    link/.style={->, line width=0.9pt, draw=cardline, rounded corners=4pt},
+    flow/.style={->, line width=0.9pt, draw=cardline}
+]
+
+% =====================================================================
+%  Geometrie : 2 colonnes x 3 lignes, tout aligne
+% =====================================================================
+\def\colL{-3.85}   \def\colR{3.85}
+\def\rowA{0}       \def\rowB{-3.6}    \def\rowC{-7.2}
+\def\cardw{6.55cm} \def\cardh{2.3cm}
+
+% --- Bloc central ---------------------------------------------------
+\node[hub] (HUB) at (0,3.55) {%
+  \begin{minipage}{14.8cm}
+    \centering\vspace{9pt}
+    {\scriptsize\bfseries\color{hubrule}PROBLÉMATIQUE}\\[4pt]
+    {\large\bfseries SIMULATION GPU DE RÉSEAUX DE NEURONES}\\[5pt]
+    {\color{hubrule}\rule{13.6cm}{0.5pt}}\\[5pt]
+    {\small Le GPU (RTX~5090) apporte-t-il un gain suffisant face au CPU ?}
+    \vspace{9pt}
+  \end{minipage}};
+
+% --- Ligne 1 : POURQUOI  |  COMMENT ----------------------------------
+\node[card, draw=whyborder, fill=whybg] (WHY) at (\colL,\rowA) {%
+  \begin{minipage}[t][\cardh][t]{\cardw}\cardsetup{whyborder}
+    \cardtitle{whyborder}{POURQUOI ?}
+    \begin{cbul}
+      \item Passer de plusieurs heures (CPU) à quelques minutes.
+      \item Simuler de plus grands réseaux de neurones.
+      \item Tester plus vite de nouvelles hypothèses.
+    \end{cbul}
+  \end{minipage}};
+
+\node[card, draw=howborder, fill=howbg] (HOW) at (\colR,\rowA) {%
+  \begin{minipage}[t][\cardh][t]{\cardw}\cardsetup{howborder}
+    \cardtitle{howborder}{COMMENT ?}
+    \begin{cbul}
+      \item Code de référence CPU fourni.
+      \item Parallélisation sur GPU (RTX~5090).
+      \item Benchmark CPU vs GPU.
+    \end{cbul}
+  \end{minipage}};
+
+% --- Ligne 2 : QUOI  |  ENJEUX ---------------------------------------
+\node[card, draw=whatborder, fill=whatbg] (WHAT) at (\colL,\rowB) {%
+  \begin{minipage}[t][\cardh][t]{\cardw}\cardsetup{whatborder}
+    \cardtitle{whatborder}{QUOI ?}
+    \begin{cbul}
+      \item Modèle Hodgkin-Huxley (ions Na$^{+}$/K$^{+}$).
+      \item Synapses et connectome.
+      \item Réseau de neurones couplés.
+    \end{cbul}
+  \end{minipage}};
+
+\node[card, draw=outborder, fill=outbg] (OUT) at (\colR,\rowB) {%
+  \begin{minipage}[t][\cardh][t]{\cardw}\cardsetup{outborder}
+    \cardtitle{outborder}{ENJEUX}
+    \begin{cbul}
+      \item Courbe de speedup selon la taille du réseau.
+      \item Seuil à partir duquel le GPU est utile.
+      \item Réponse mesurée, pas prédéterminée.
+    \end{cbul}
+  \end{minipage}};
+
+% --- Ligne 3 : QUI  |  CONTRAINTES -----------------------------------
+\node[card, draw=whoborder, fill=whobg] (WHO) at (\colL,\rowC) {%
+  \begin{minipage}[t][\cardh][t]{\cardw}\cardsetup{whoborder}
+    \cardtitle{whoborder}{QUI ?}
+    \begin{cbul}
+      \item Laboratoire de M.~Pirog (Junia).
+      \item Chercheurs en neurosciences computationnelles.
+      \item Étudiants du projet R\&D.
+    \end{cbul}
+  \end{minipage}};
+
+\node[card, draw=defiborder, fill=defibg] (DEFI) at (\colR,\rowC) {%
+  \begin{minipage}[t][\cardh][t]{\cardw}\cardsetup{defiborder}
+    \cardtitle{defiborder}{CONTRAINTES}
+    \begin{cbul}
+      \item Couplage synaptique irrégulier.
+      \item Accès mémoire non uniforme.
+      \item Part séquentielle inévitable.
+    \end{cbul}
+  \end{minipage}};
+
+% =====================================================================
+%  Liaisons : une fourche depuis le bloc central, puis deux colonnes
+% =====================================================================
+\draw[link] (HUB.south) -- (0,2.05) -- (\colL,2.05) -- (WHY.north);
+\draw[link] (HUB.south) -- (0,2.05) -- (\colR,2.05) -- (HOW.north);
+
+\draw[flow] (WHY.south)  -- (WHAT.north);
+\draw[flow] (WHAT.south) -- (WHO.north);
+\draw[flow] (HOW.south)  -- (OUT.north);
+\draw[flow] (OUT.south)  -- (DEFI.north);
+
+\end{tikzpicture}
+\caption{Carte conceptuelle du projet : qui, quoi, comment, pourquoi, enjeux et contraintes.}
+\end{figure}
 
 \end{document}
