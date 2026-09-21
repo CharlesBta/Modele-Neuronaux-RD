@@ -1,0 +1,9 @@
+# Calcul scientifique et modélisation
+numpy>=1.24.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+networkx>=3.0
+
+# Optionnel pour l'accélération GPU :
+# torch>=2.0.0
+# cupy-cuda12x>=12.0.0

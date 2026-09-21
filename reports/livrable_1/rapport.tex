@@ -1,0 +1,120 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\setlength{\headheight}{13pt}
+\usepackage{lastpage}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+\usepackage{tikz}
+\usepackage{longtable}
+
+
+
+\newcommand{\DocName}{OPTIMISATION DE MODELES NEURONAUX A OSCILLATEURS COUPLÉS - LIVRABLE 1}
+\newcommand{\DocAuthors}{\bsc{Da Silva} Tristan - \bsc{Battaglia} Charles-Antoine \\ \bsc{Botté-Magalhaes} Jules - \bsc{Gauthier} Keanu - \bsc{Fraysse} Ianis}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{addrred}{rgb}{0.93,0.43,0.43}
+\definecolor{commentgray}{rgb}{0.45,0.45,0.45}
+
+\lstdefinelanguage{MicroAsm}{
+    sensitive=true,
+    morecomment=[l]{\#},
+    moredelim=[s][\color{addrred}]{@}{:}
+}
+
+\lstdefinelanguage{HexProg}{
+    sensitive=true,
+    morecomment=[l]{;}
+}
+
+\lstdefinelanguage{AsmStd}{
+    sensitive=true,
+    morecomment=[l]{;},
+    morecomment=[l]{\#},
+    morekeywords={
+        MOV,ADD,SUB,MUL,DIV,INC,DEC,CMP,AND,OR,XOR,NOT,
+        JMP,JE,JNE,JG,JL,JGE,JLE,CALL,RET,PUSH,POP,
+        LDA,STA,LOAD,STORE,INPUT,OUTPUT,HALT,NOP
+    }
+}
+
+\lstset{frame=tb,
+    language=MicroAsm,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=none,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{commentgray}, 
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3,
+   }
+
+\lstset{breaklines=true}
+
+\geometry{a4paper, margin=1in}
+
+% Suppression de l'affichage du mot "Chapitre"
+\titleformat{\chapter}[display]
+    {\normalfont\bfseries\LARGE}
+    {}
+    {0pt}
+    {}
+
+\definecolor{Light}{gray}{.90}
+\sethlcolor{Light}
+
+\let\OldTexttt\texttt
+\renewcommand{\texttt}[1]{\OldTexttt{\hl{#1}}}
+
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\thesection}{\thechapter.\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+
+\fancyhf{}
+\fancyhead[L]{\DocName}
+\fancyfoot[L]{\DocAuthors}
+\fancyfoot[R]{\thepage / \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0 pt}
+\renewcommand{\footrulewidth}{0.2pt}
+\pagestyle{fancy}
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[R]{\thepage / \pageref{LastPage}}
+    \fancyfoot[L]{\DocAuthors}
+    \fancyhead[L]{\DocName}
+}
+
+\graphicspath{ {./img} }
+
+\title{\DocName}
+\author{\DocAuthors}
+\date{\textbf{JUNIA - ISEN - AP4} \url{https://github.com/KeanuGauthier/Socle-Modele-Neuronaux-RD.git}}
+
+\newcounter{questioncounter}
+\setcounter{questioncounter}{0}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\end{document}
