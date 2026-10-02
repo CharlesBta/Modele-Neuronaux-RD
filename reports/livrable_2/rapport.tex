@@ -1,0 +1,378 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\setlength{\headheight}{13pt}
+\usepackage{lastpage}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+\usepackage{tikz}
+\usetikzlibrary{positioning, shapes.geometric, arrows.meta, calc, fit, backgrounds, shadows}
+\usepackage{rotating}
+\usepackage{longtable}
+\usepackage{array}
+
+\newcommand{\DocName}{OPTIMISATION DE MODELES NEURONAUX A OSCILLATEURS COUPLÉS - LIVRABLE 2 : NOTE DE CLARIFICATION}
+\newcommand{\DocAuthors}{\bsc{Da Silva} Tristan - \bsc{Battaglia} Charles-Antoine \\ \bsc{Botté-Magalhaes} Jules - \bsc{Gauthier} Keanu - \bsc{Fraysse} Ianis}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{addrred}{rgb}{0.93,0.43,0.43}
+\definecolor{commentgray}{rgb}{0.45,0.45,0.45}
+
+\definecolor{inborder}{RGB}{34,116,80}
+\definecolor{inbg}{RGB}{243,250,246}
+\definecolor{outborder2}{RGB}{166,54,45}
+\definecolor{outbg2}{RGB}{253,245,244}
+
+% Palette de la bête à cornes
+\definecolor{hubbg}{RGB}{23,48,77}
+\definecolor{hubrule}{RGB}{150,178,206}
+\definecolor{cardink}{RGB}{33,41,54}
+\definecolor{cardline}{RGB}{160,172,186}
+\definecolor{whyborder}{RGB}{31,92,139}
+\definecolor{whybg}{RGB}{243,248,252}
+\definecolor{whatborder}{RGB}{34,116,80}
+\definecolor{whatbg}{RGB}{243,250,246}
+\definecolor{defiborder}{RGB}{166,54,45}
+\definecolor{defibg}{RGB}{253,245,244}
+
+\lstset{frame=tb,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=none,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{commentgray},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3,
+   }
+
+\lstset{breaklines=true}
+
+\geometry{a4paper, margin=1in}
+
+% Suppression de l'affichage du mot "Chapitre"
+\titleformat{\chapter}[display]
+    {\normalfont\bfseries\LARGE}
+    {}
+    {0pt}
+    {}
+
+\definecolor{Light}{gray}{.90}
+\sethlcolor{Light}
+
+\let\OldTexttt\texttt
+\renewcommand{\texttt}[1]{\OldTexttt{\hl{#1}}}
+
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\thesection}{\thechapter.\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+
+\fancyhf{}
+\fancyhead[L]{\DocName}
+\fancyfoot[L]{\DocAuthors}
+\fancyfoot[R]{\thepage\ / \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0 pt}
+\renewcommand{\footrulewidth}{0.2pt}
+\pagestyle{fancy}
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[R]{\thepage\ / \pageref{LastPage}}
+    \fancyfoot[L]{\DocAuthors}
+    \fancyhead[L]{\DocName}
+}
+
+\graphicspath{ {./img} }
+
+\title{\DocName}
+\author{\DocAuthors}
+\date{\textbf{JUNIA - ISEN - AP4} \url{https://github.com/CharlesBta/Modele-Neuronaux-RD.git}}
+
+\begin{document}
+\maketitle
+
+\chapter*{Lexique}
+\addcontentsline{toc}{chapter}{Lexique}
+
+\begin{tabular}{@{}p{3.9cm}p{11cm}@{}}
+    \textbf{C++} & Langage de programmation compilé, proche de la machine, utilisé notamment avec \textbf{CUDA} pour écrire les programmes rapides. \\[6pt]
+    \textbf{CPU} & \emph{Central Processing Unit} : processeur généraliste qui traite les instructions de façon séquentielle. \\[6pt]
+    \textbf{CUDA} & \emph{Compute Unified Device Architecture} : plateforme de \textbf{NVIDIA} pour écrire des programmes qui s'exécutent sur les \textbf{GPU}. \\[6pt]
+    \textbf{FPGA} & \emph{Field Programmable Gate Array} : puce reprogrammable dont le matériel s'adapte au calcul, alternative au \textbf{GPU} pour les calculs répétitifs. \\[6pt]
+    \textbf{GPU} & \emph{Graphics Processing Unit} : processeur massivement parallèle conçu pour effectuer un grand nombre de calculs simultanément. \\[6pt]
+    \textbf{Python} & Langage de programmation interprété, utilisé par le socle de code fourni (solveur de référence, générateurs de connectomes). \\[6pt]
+    \textbf{Référence CPU} & Implémentation sur \textbf{CPU} qui sert d'étalon de justesse et de temps pour calculer le speedup. \\[6pt]
+    \textbf{RTX 5090} & Carte graphique \textbf{NVIDIA} de la série \textbf{RTX~5000}, disponible sur les serveurs Junia. \\[6pt]
+    \textbf{VRAM} & Mémoire embarquée sur la carte graphique, distincte de la mémoire de l'ordinateur. \\
+\end{tabular}
+
+\tableofcontents
+
+\chapter{Objet de la note}
+
+Ce document est le livrable L2 du projet R\&D : la \textbf{note de clarification}. Le livrable L1 a reformulé le sujet et posé la carte conceptuelle, autrement dit \emph{ce qu'est} le sujet. Avant d'entrer dans l'état de l'art et l'analyse fonctionnelle, il reste à préciser \emph{ce que le projet doit produire, pour qui, dans quel cadre et jusqu'où il va} : c'est le rôle de la présente note.
+
+Le cadrage prend en \textbf{entrée} un client porteur de macro-besoins, le laboratoire de M.~Pirog, et un existant, le socle de code \textbf{CPU} fourni. En \textbf{sortie}, il doit donner le contexte et la définition du projet, la vision et les objectifs, les livrables, les étapes clés et le macro-planning, les acteurs et leurs rôles, enfin les contraintes et les risques. Cette note rédige cette synthèse : elle vaut \og contrat \fg{} avec le client et sert de base au \textbf{GO / NO GO} sur la vision commune du projet.
+
+Trois objectifs la guident :
+\begin{itemize}
+    \item \textbf{écrire noir sur blanc le besoin} du client et des parties prenantes tel que nous l'avons compris, pour que les encadrants le valident ou le corrigent ;
+    \item \textbf{délimiter le périmètre} du projet : ce qui est inclus, ce qui est exclu explicitement, et sur quelles hypothèses nous travaillons ;
+    \item \textbf{poser des critères de réussite mesurables}, qui guideront l'état de l'art (L3), l'analyse fonctionnelle (L4) et la stratégie de réalisation (L5).
+\end{itemize}
+
+Pour la rédiger, nous nous appuyons sur le sujet \og Optimisation de modèles neuronaux à oscillateurs couplés \fg{}, sur le support du projet et sur le socle de code fourni : modèle de \textbf{Hodgkin-Huxley}, \textbf{synapses} et solveur \textbf{CPU} de référence.
+
+Il s'agit aussi d'un document d'\textbf{engagement} : numéroté et daté, il fixe par écrit la vision commune du projet et sera remis à jour au fil des avancées et des clarifications apportées par les encadrants.
+
+\chapter{Contexte et besoin}
+
+\section{Contexte}
+
+Le laboratoire de M.~Antoine Pirog étudie des réseaux de neurones biophysiques par simulation. Le modèle de \textbf{Hodgkin-Huxley} en forme la base : chaque neurone y devient un système d'\textbf{EDO} qui décrit son potentiel membranaire et ses canaux ioniques, et les neurones sont reliés par des modèles biophysiques de \textbf{synapses}, répartis selon la topologie d'un \textbf{connectome}.
+
+La difficulté centrale est identifiée depuis longtemps : le coût d'une simulation augmente avec la taille du réseau, au point de devenir vite rédhibitoire sur \textbf{CPU}. Les réseaux que le laboratoire peut étudier s'en trouvent bornés, et avec eux les questions scientifiques qu'il peut aborder. Junia met à disposition des serveurs à \textbf{GPU} \textbf{RTX~5090} dont la puissance théorique mérite qu'on évalue un portage. Le projet peut aussi aboutir à une autre conclusion : qu'une architecture différente, par exemple le \textbf{FPGA}, performant sur les calculs répétitifs, conviendrait mieux. Cette piste reste ouverte comme alternative au \textbf{GPU}.
+
+\section{Définition du projet et vision}
+
+\textbf{Définition.} Le projet doit mesurer, de façon reproductible, le gain de temps de calcul apporté par un portage \textbf{GPU} de la simulation de réseaux de neurones \textbf{Hodgkin-Huxley} couplés, et déterminer si ce gain suffit à simuler des connectomes nettement plus grands que la référence \textbf{CPU}, sans perdre en fidélité numérique.
+
+\textbf{Vision.} À terme, le laboratoire doit disposer d'un \textbf{environnement de simulation générique} : le modèle neuronal et le connectome se choisissent par configuration, la simulation tourne sur \textbf{CPU} ou sur \textbf{GPU}, et un benchmark documenté dit dans quels cas le \textbf{GPU} se justifie. Une réponse négative aurait la même valeur scientifique : elle épargnerait au laboratoire un investissement inutile.
+
+\section{Besoin exprimé}
+
+Le besoin du laboratoire se formule ainsi :
+
+\begin{quote}
+\itshape Le laboratoire a besoin de pouvoir simuler des réseaux de neurones biophysiques de grandes tailles  dans un temps de calcul acceptable, afin d'étudier des connectomes assez grands pour être utiles à la recherche, et de savoir si l'architecture \textbf{GPU} dont il dispose apporte un gain réel face à la référence \textbf{CPU}.
+\end{quote}
+
+Deux points précisent ce besoin :
+\begin{itemize}
+    \item l'objectif n'est pas de passer sur \textbf{GPU} à tout prix, mais de savoir si le \textbf{GPU} se justifie et à quelles conditions : une conclusion négative constituerait, en soi, un résultat ;
+    \item les résultats obtenus sur \textbf{GPU} resteront comparables à ceux de la référence \textbf{CPU} : pas d'accélération au prix d'une dérive numérique par rapport au modèle de référence.
+\end{itemize}
+
+\section{Données d'entrée}
+
+Le projet démarre avec les éléments suivants, fournis ou imposés :
+
+\begin{itemize}
+    \item \textbf{Le sujet} : \og Optimisation de modèles neuronaux à oscillateurs couplés \fg{}.
+    \item \textbf{Le socle de code fourni} : modèle de \textbf{Hodgkin-Huxley}, synapses et solveur \textbf{CPU}.
+    \item \textbf{Les connectomes} : générés artificiellement avec une structure, rangés dans une matrice de taille $N \times N$ ; aucune donnée biologique réelle n'entre dans le projet.
+    \item \textbf{Le benchmark CPU existant} : limité pour l'instant à la topologie en chaîne et à de petites tailles ($N \in \{2, 4, 8, 16\}$), très en dessous des tailles visées ; il servira de point de départ avant d'être étendu.
+    \item \textbf{Le matériel} : serveurs Junia à \textbf{GPU RTX~5090}.
+    \item \textbf{Le calendrier du projet} : jalons et évaluations imposés (voir la section Livrables).
+\end{itemize}
+
+\section{Bête à cornes}
+
+La bête à cornes ci-dessous formalise ce besoin : le système rend service au laboratoire, dans le but d'étudier, en un temps de calcul acceptable, des réseaux de neurones assez grands pour la recherche, en agissant sur les modèles de neurones couplés et les connectomes donnés en entrée.
+
+\begin{figure}[!htbp]
+\centering
+\scalebox{0.8}{%
+\begin{tikzpicture}[
+    >={Stealth[length=2.4mm,width=1.9mm]},
+    ans/.style={
+        rectangle, rounded corners=4pt, align=left,
+        line width=1pt, inner sep=8pt, font=\footnotesize,
+        text=cardink
+    },
+    qlabel/.style={
+        rectangle, rounded corners=3pt, align=center, font=\scriptsize\bfseries,
+        inner sep=4pt, text=white
+    },
+    link/.style={->, line width=1.1pt, draw=cardline, rounded corners=4pt}
+]
+
+% =====================================================================
+%  Les deux cornes : A QUI | SUR QUOI
+% =====================================================================
+\node[ans, draw=whyborder, fill=whybg, text width=4.3cm] (QUI) at (-5.3,2.4) {%
+    Laboratoire de recherche de M.~Pirog :\\[4pt]
+    -- chercheurs en neurosciences computationnelles ;\\[4pt]
+    -- encadrants du projet R\&D.};
+
+\node[ans, draw=defiborder, fill=defibg, text width=4.3cm] (MILIEU) at (5.3,2.4) {%
+    Les modèles de neurones Hodgkin-Huxley couplés par synapses et les connectomes structurés synthétiques,\\[4pt]
+    simulant le comportement électrique du réseau sur les serveurs \textbf{GPU} de Junia (\textbf{RTX~5090}).};
+
+\node[qlabel, fill=whyborder, anchor=south west] at ([xshift=4pt]QUI.north west) {À qui rend-il service ?};
+\node[qlabel, fill=defiborder, anchor=south west] at ([xshift=4pt]MILIEU.north west) {Sur quoi agit-il ?};
+
+% =====================================================================
+%  Le produit au centre
+% =====================================================================
+\node[ans, draw=hubbg, fill=hubbg, text width=8.6cm, text=white, align=center] (SYS) at (0,-1.8) {%
+    {\scriptsize\bfseries LE SYSTÈME}\\[6pt]
+    {\small\bfseries Environnement de simulation de réseaux de neurones couplés sur \textbf{GPU}}
+};
+
+% =====================================================================
+%  Le bas : DANS QUEL BUT
+% =====================================================================
+\node[ans, draw=whatborder, fill=whatbg, text width=10.6cm, align=center] (BUT) at (0,-6.0) {%
+    Étudier des connectomes assez grands pour être utiles à la recherche,\\[4pt]
+    dans un temps de calcul acceptable,\\[4pt]
+    et savoir si le \textbf{GPU} vaut le coup face au \textbf{CPU}.};
+
+\node[qlabel, fill=whatborder, anchor=south west] at ([xshift=4pt]BUT.north west) {Dans quel but ?};
+
+% =====================================================================
+%  Liaisons
+% =====================================================================
+\draw[link] (QUI.south) -- (SYS.west);
+\draw[link] (MILIEU.south) -- (SYS.east);
+\draw[link] (SYS.south) -- (BUT.north);
+
+\end{tikzpicture}}%
+\caption{Bête à cornes du projet : à qui rend-il service, sur quoi agit-il, dans quel but ?}
+\end{figure}
+
+\chapter{Client et parties prenantes}
+
+\begin{longtable}{|p{4.6cm}|p{10cm}|}
+\hline
+\textbf{Partie prenante} & \textbf{Rôle} \\ \hline
+M.~Antoine Pirog & Client principal, encadrant \\ \hline
+M.~Frédéric Chatrie & Encadrant \\ \hline
+Laboratoire de recherche & Utilisateur final \\ \hline
+Étudiants du projet R\&D & Réalisateurs \\ \hline
+\end{longtable}
+
+\chapter{Objectifs}
+
+Les six attentes du sujet deviennent ici des objectifs opérationnels :
+
+\begin{enumerate}
+    \item \textbf{Bâtir une référence fiable} : implémenter le modèle de \textbf{Hodgkin-Huxley} avec son terme de couplage synaptique, puis valider sur \textbf{CPU} une implémentation de référence qui servira de vérité terrain.
+    \item \textbf{Faire tourner des connectomes structurés} de plus en plus grands : d'abord de petits réseaux de validation, puis des réseaux de plusieurs milliers à dizaines de milliers de neurones.
+    \item \textbf{Développer et comparer des stratégies d'optimisation} \textbf{GPU} de la simulation : parallélisation par neurone, gestion des accès mémoire au connectome.
+    \item \textbf{Mesurer comment le temps de calcul évolue} avec la taille du connectome, sur \textbf{CPU} comme sur \textbf{GPU}.
+    \item \textbf{Livrer un benchmark comparatif} des approches et des stratégies d'optimisation testées.
+    \item \textbf{Concevoir un environnement générique} où le modèle neuronal et le connectome se remplacent pour d'autres applications sans réécrire la chaîne de simulation.
+\end{enumerate}
+
+\section{Livrables}
+
+Le calendrier du projet impose les livrables suivants :
+
+\begin{itemize}
+    \item \textbf{L1 -- Reformulation du sujet avec schéma expliqué} (21/09).
+    \item \textbf{L2 -- Note de clarification} (02/10).
+    \item \textbf{L3 -- État de l'art sous forme de benchmark} (08/10).
+    \item \textbf{L4 -- Analyse fonctionnelle} (15/10).
+    \item \textbf{L5 -- FAST et schéma synoptique} (20/10).
+    \item \textbf{Rapport final et soutenance} (22/10).
+\end{itemize}
+
+\chapter{Périmètre}
+
+\section{Ce qui est inclus}
+
+\begin{itemize}
+    \item Le modèle de \textbf{Hodgkin-Huxley} et le couplage synaptique du socle de code fourni.
+    \item Des connectomes artificiels à structure (topologies régulières ou aléatoires), par tailles croissantes.
+    \item Un code de référence pour \textbf{CPU}.
+    \item Les nombreux documents et ressources existants sur le modèle de \textbf{Hodgkin-Huxley} sur \textbf{CPU}.
+\end{itemize}
+
+\section{Ce qui est explicitement exclu}
+
+\begin{itemize}
+    \item Toute simulation sur données biologiques réelles (connectomes mesurés) : seuls des connectomes synthétiques sont utilisés.
+    \item La modification du modèle biophysique : il ne s'agit pas de chercher un nouveau modèle neuronal, mais d'optimiser la simulation du modèle fourni.
+    \item Le temps réel et l'interaction homme-machine pendant la simulation.
+\end{itemize}
+
+\chapter{Contraintes, hypothèses et risques}
+
+\section{Contraintes}
+
+\begin{itemize}
+    \item \textbf{Temps} : 32~h encadrées au S7 pour les études, puis 100~h au S8 pour la réalisation ; le calendrier du projet impose ses jalons (évaluations du 08/10 et du 22/10).
+    \item \textbf{Matériel} : des serveurs Junia à \textbf{RTX~5090} ; la mémoire du \textbf{GPU}, 32~Go de \textbf{VRAM}, borne physiquement la taille des connectomes simulables.
+    \item \textbf{Couplage irrégulier} : les connexions du connectome n'ont pas de régularité, les accès mémoire ne sont pas uniformes et une partie du calcul reste séquentielle, les pas de temps s'enchaînant l'un après l'autre ; le parallélisme ne sera donc ni parfait ni simple.
+    \item \textbf{Techniques} : des langages dictés par l'existant et par le \textbf{GPU} : socle \textbf{Python} pour la référence, puis \textbf{C/C++/CUDA} ou un framework \textbf{Python} pour l'accélération et la parallélisation.
+\end{itemize}
+
+\section{Hypothèses de travail}
+
+\begin{itemize}
+    \item Le socle fourni (modèle, synapses, solveur \textbf{CPU}) est juste et peut servir de référence sans revalider en profondeur le modèle biophysique ; le portage \textbf{GPU} se fera dans un langage comme \textbf{C++} ou \textbf{CUDA}.
+    \item Les temps mesurés sur les connectomes synthétiques représentent bien ce qu'on obtiendrait sur d'autres connectomes de même structure.
+\end{itemize}
+
+\section{Risques}
+
+\begin{longtable}{|p{6.8cm}|p{7.8cm}|}
+\hline
+\textbf{Risque} & \textbf{Impact} \\ \hline
+Mémoire du \textbf{GPU} trop juste pour les plus grands connectomes &
+La taille des réseaux mesurables plafonne \\ \hline
+
+Gain exagéré par une référence \textbf{CPU} non optimisée &
+Conclusion erronée pour le laboratoire \\ \hline
+
+Portage \textbf{GPU} long à mettre au point &
+Campagnes de mesures amputées \\ \hline
+
+\end{longtable}
+
+\chapter{Critères de réussite}
+
+\begin{longtable}{|p{5.5cm}|p{9.5cm}|}
+\hline
+\textbf{Objectif} & \textbf{Critère de réussite mesurable} \\ \hline
+
+Portage \textbf{GPU} valide \textit{ou alternative} &
+Les sorties du portage \textbf{GPU} collent à la référence \textbf{CPU} à une tolérance numérique près, définie et justifiée. \\ \hline
+
+Mesures de performance &
+Courbes du temps de calcul selon la taille du connectome, sur \textbf{CPU} et \textbf{GPU}, sur une gamme couvrant au moins deux ordres de grandeur. \\ \hline
+
+Benchmark comparatif &
+Tableau des stratégies testées avec les mêmes métriques (temps, speedup) et un protocole décrit et reproductible. \\ \hline
+
+Environnement générique &
+Le connectome ou le modèle se remplace par configuration, sans toucher au cœur de la chaîne de simulation. \\ \hline
+
+\end{longtable}
+
+\chapter{Suivi et validation de la note}
+\label{chap:validation}
+
+\section{Historique des versions}
+
+\begin{longtable}{|p{1.8cm}|p{2.6cm}|p{10.2cm}|}
+\hline
+\textbf{Version} & \textbf{Date} & \textbf{Modifications} \\ \hline
+
+1.0 & 02/10/2026 &
+Version initiale \\ \hline
+
+\end{longtable}
+
+\section{Décision : GO / NO GO}
+
+
+\end{document}
