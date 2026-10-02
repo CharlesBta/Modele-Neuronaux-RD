@@ -214,7 +214,7 @@ La bête à cornes ci-dessous formalise ce besoin : le système rend service au 
 
 \node[ans, draw=defiborder, fill=defibg, text width=4.3cm] (MILIEU) at (5.3,2.4) {%
     Les modèles de neurones Hodgkin-Huxley couplés par synapses et les connectomes structurés synthétiques,\\[4pt]
-    simulant le comportement électrique du réseau sur les serveurs \textbf{GPU} de Junia (\textbf{RTX~5090}).};
+};
 
 \node[qlabel, fill=whyborder, anchor=south west] at ([xshift=4pt]QUI.north west) {À qui rend-il service ?};
 \node[qlabel, fill=defiborder, anchor=south west] at ([xshift=4pt]MILIEU.north west) {Sur quoi agit-il ?};
@@ -274,15 +274,25 @@ Les six attentes du sujet deviennent ici des objectifs opérationnels :
 
 \section{Livrables}
 
-Le calendrier du projet impose les livrables suivants :
+Les six livrables se font au premier semestre :
 
 \begin{itemize}
-    \item \textbf{L1 -- Reformulation du sujet avec schéma expliqué} (21/09).
-    \item \textbf{L2 -- Note de clarification} (02/10).
-    \item \textbf{L3 -- État de l'art sous forme de benchmark} (08/10).
-    \item \textbf{L4 -- Analyse fonctionnelle} (15/10).
-    \item \textbf{L5 -- FAST et schéma synoptique} (20/10).
-    \item \textbf{Rapport final et soutenance} (22/10).
+    \item \textbf{L1 -- Reformulation du sujet avec schéma expliqué}.
+    \item \textbf{L2 -- Note de clarification} (le présent document).
+    \item \textbf{L3 -- État de l'art sous forme de benchmark}.
+    \item \textbf{L4 -- Analyse fonctionnelle}.
+    \item \textbf{L5 -- FAST et schéma synoptique}.
+    \item \textbf{Rapport final et soutenance}.
+\end{itemize}
+
+Le travail après ces livrables se déroule au second semestre, dans la limite des 100~h de réalisation. Il suit trois phases, chiffrées en durées indicatives :
+
+\begin{itemize}
+    \item première phase de développement : environ 2 mois, soit autour de 60~h ;
+
+    \item phase de tests et de benchmark : environ 2 semaines, soit autour de 15~h ;
+
+    \item interprétation des résultats puis deuxième phase de développement : environ 1 mois, soit autour de 25~h.
 \end{itemize}
 
 \chapter{Périmètre}
@@ -320,6 +330,7 @@ Le calendrier du projet impose les livrables suivants :
 \begin{itemize}
     \item Le socle fourni (modèle, synapses, solveur \textbf{CPU}) est juste et peut servir de référence sans revalider en profondeur le modèle biophysique ; le portage \textbf{GPU} se fera dans un langage comme \textbf{C++} ou \textbf{CUDA}.
     \item Les temps mesurés sur les connectomes synthétiques représentent bien ce qu'on obtiendrait sur d'autres connectomes de même structure.
+    \item Le benchmark commencera par les pires cas, les connectomes les plus denses (tout-à-tout), puis comparera avec des connectomes creux, plus légers : l'écart entre les deux mesurera l'effet de la densité de connexions sur les performances.
 \end{itemize}
 
 \section{Risques}
@@ -332,9 +343,6 @@ La taille des réseaux mesurables plafonne \\ \hline
 
 Gain exagéré par une référence \textbf{CPU} non optimisée &
 Conclusion erronée pour le laboratoire \\ \hline
-
-Portage \textbf{GPU} long à mettre au point &
-Campagnes de mesures amputées \\ \hline
 
 \end{longtable}
 
@@ -359,20 +367,20 @@ Le connectome ou le modèle se remplace par configuration, sans toucher au cœur
 \end{longtable}
 
 \chapter{Suivi et validation de la note}
-\label{chap:validation}
-
-\section{Historique des versions}
-
-\begin{longtable}{|p{1.8cm}|p{2.6cm}|p{10.2cm}|}
-\hline
-\textbf{Version} & \textbf{Date} & \textbf{Modifications} \\ \hline
-
-1.0 & 02/10/2026 &
-Version initiale \\ \hline
-
-\end{longtable}
 
 \section{Décision : GO / NO GO}
 
+La validation de cette note vaut \textbf{GO} : les parties s'accordent sur le besoin, les objectifs, le périmètre et les durées décrits, et le projet se poursuit sur cette base. Un \textbf{GO sous réserve} n'engage la suite qu'une fois les réserves levées ; un \textbf{NO GO} signale un désaccord à lever : la note est alors corrigée et soumise à nouveau, chaque modification étant tracée dans l'historique des versions.
+
+\begin{tabular}{|p{3.4cm}|c|c|c|p{4.4cm}|}
+\hline
+\textbf{Partie} & \textbf{GO} & \textbf{GO sous réserve} & \textbf{NO GO} & \textbf{Observations} \\ \hline
+Équipe projet & $\checkmark$ & $\square$ & $\square$ & \rule{0pt}{0.9cm} \\ \hline
+Client (M.~Pirog) & $\checkmark$ & $\square$ & $\square$ & \rule{0pt}{0.9cm} \\ \hline
+\end{tabular}
+
+\medskip
+
+Date de la décision : 02/10/2026 {\hrulefill}
 
 \end{document}
