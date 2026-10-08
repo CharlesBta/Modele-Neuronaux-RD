@@ -115,6 +115,14 @@
 
 \tableofcontents
 
+\chapter{Introduction}
+
+Ce document est le livrable L3 du projet : l'état de l'art sous forme de benchmark. La note de clarification (L2) a posé le besoin : savoir si les serveurs \textbf{GPU} \textbf{RTX~5090} de Junia permettent de simuler des réseaux de neurones de \textbf{Hodgkin-Huxley} couplés nettement plus grands que sur \textbf{CPU}, dans un temps acceptable et sans dérive numérique. Ce document cherche ce que la littérature dit déjà de cette question, pour préparer nos propres mesures.
+
+Nous avons retenu cinq travaux parus entre 2008 et 2025, cherchés dans des sources reconnues : \textbf{IEEE Xplore}, PubMed Central, ScienceDirect, l'\textbf{ACM} Digital Library et arXiv. Les critères de sélection : simuler des réseaux de neurones (de préférence à conductance, comme Hodgkin-Huxley) ou des systèmes d'\textbf{EDO} sur \textbf{GPU}, avec des mesures de performance publiées. Chacun fait l'objet d'une fiche d'analyse à six questions (chapitre 1) ; leur synthèse donne le benchmark comparatif du chapitre 2.
+
+D'autres sources complètent cette analyse sans faire l'objet d'une fiche : la fiche technique de la \textbf{RTX~5090}, notre matériel cible \cite{techpowerup} ; une simulation de réseaux fortement connectés sur \textbf{GPU}, notre pire cas \cite{golosio2021} ; la parallélisation sur \textbf{GPU} du solveur des équations d'un neurone multi-compartiments \cite{vooturi2018} ; et la multiplication de matrices creuses sur \textbf{GPU} \cite{bell2009}, la forme sous laquelle notre connectome sera stocké. Toutes sont citées en bibliographie.
+
 \chapter{Fiches d'analyse des articles}
 
 \section{Scalable Parallel Programming with CUDA (2008)}
@@ -201,14 +209,14 @@ Le tableau ci-dessous compare les cinq approches sur les critères de benchmarki
 \medskip
 
 {\setlength{\tabcolsep}{3pt}\footnotesize
-\begin{tabular}{|p{1.8cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.05cm}|p{1.35cm}|p{2.4cm}|p{0.95cm}|}
+\begin{tabular}{|p{1.8cm}|p{1.5cm}|p{1.5cm}|p{1.85cm}|p{1.05cm}|p{1.35cm}|p{2.1cm}|p{0.95cm}|}
 \hline
 \rowcolor{gray!15}
-\scriptsize\textbf{Outil} & \scriptsize\textbf{Type} & \scriptsize\textbf{Technicité} & \scriptsize\textbf{Maturité (TRL)} & \scriptsize\textbf{Coût} & \scriptsize\textbf{Facilité} & \scriptsize\textbf{Performance} & \scriptsize\textbf{Moy.} \\ \hline
+\scriptsize\textbf{Outil} & \scriptsize\textbf{Type} & \scriptsize\textbf{Technicité} & \scriptsize\textbf{Implantation} & \scriptsize\textbf{Coût} & \scriptsize\textbf{Facilité} & \scriptsize\textbf{Gains de performance} & \scriptsize\textbf{Moy.} \\ \hline
 
 CUDA \cite{nickolls2008} & Modèle de programmation \textbf{GPU} &
 \cellcolor{bmBest}Très avancé &
-\cellcolor{bmBest}Très mature &
+\cellcolor{bmBest}Standard en production &
 \cellcolor{bmBest}Gratuit &
 \cellcolor{bmLow}Complexe &
 Sans mesure &
@@ -216,7 +224,7 @@ Sans mesure &
 
 GeNN \cite{yavuz2016} & Génération de code \textbf{CUDA} &
 \cellcolor{bmGood}Avancé &
-\cellcolor{bmGood}Mature &
+\cellcolor{bmGood}Utilisé en recherche &
 \cellcolor{bmBest}Gratuit &
 \cellcolor{bmGood}Assez facile &
 \cellcolor{bmGood}$\times$200 vs 1 cœur \textbf{CPU} &
@@ -224,7 +232,7 @@ GeNN \cite{yavuz2016} & Génération de code \textbf{CUDA} &
 
 Brian2CUDA \cite{alevi2022} & Backend \textbf{GPU} de Brian2 &
 \cellcolor{bmMid}Modéré &
-\cellcolor{bmMid}Plutôt récent &
+\cellcolor{bmMid}Recherche, récent &
 \cellcolor{bmBest}Gratuit &
 \cellcolor{bmBest}Très facile &
 \cellcolor{bmBest}$\times$1000 vs Brian \textbf{CPU} &
@@ -232,15 +240,15 @@ Brian2CUDA \cite{alevi2022} & Backend \textbf{GPU} de Brian2 &
 
 Solveur \textbf{Julia} \cite{utkarsh2024} & Solveur d'\textbf{EDO} multi-\textbf{GPU} &
 \cellcolor{bmGood}Avancé &
-\cellcolor{bmMid}Récent &
+\cellcolor{bmGood}Écosystème actif &
 \cellcolor{bmBest}Gratuit &
 \cellcolor{bmGood}Facile &
-\cellcolor{bmBest}$\times$20--100 vs \textbf{JAX}/\textbf{PyTorch} &
+\cellcolor{bmBest}$\times$20--100 vs \textbf{JAX}/\allowbreak\textbf{PyTorch} &
 \cellcolor{bmGood}+ \\ \hline
 
 SimHH \cite{engelen2025} & Multi-\textbf{GPU} (\textbf{MPI}) &
 \cellcolor{bmBest}Très avancé &
-\cellcolor{bmLow}Tout récent &
+\cellcolor{bmMid}Prototype d'une équipe &
 \cellcolor{bmLow}Exige un cluster &
 \cellcolor{bmLow}Complexe &
 \cellcolor{bmBest}$\times$150 vs \textbf{CPU} mono-fil &
@@ -272,6 +280,14 @@ SimHH \cite{engelen2025} & Multi-\textbf{GPU} (\textbf{MPI}) &
 \bibitem{utkarsh2024} U.~Utkarsh, V.~Churavy, Y.~Ma, T.~Besard, P.~Srisuma, T.~Gymnich, A.~R.~Gerlach, A.~Edelman, G.~Barbastathis, R.~D.~Braatz, C.~Rackauckas, \og Automated Translation and Accelerated Solving of Differential Equations on Multiple GPU Platforms \fg, \emph{Computer Methods in Applied Mechanics and Engineering}, vol.~419, 2024. \href{https://doi.org/10.1016/j.cma.2023.116591}{DOI : 10.1016/j.cma.2023.116591}. Prépublication : \href{https://arxiv.org/abs/2304.06835}{arXiv:2304.06835}.
 
 \bibitem{engelen2025} M.~C.~W.~Engelen, J.-H.~L.~F.~Betting, C.~Strydis, \og SimHH : A Versatile, Multi-GPU Simulator for Extended Hodgkin-Huxley Networks \fg, \emph{IEEE Access}, vol.~13, 2025. \href{https://doi.org/10.1109/ACCESS.2025.3550444}{DOI : 10.1109/ACCESS.2025.3550444}.
+
+\bibitem{golosio2021} B.~Golosio, G.~Tiddia, C.~De~Luca, E.~Pastorelli, F.~Simula, P.~S.~Paolucci, \og Fast Simulations of Highly-Connected Spiking Cortical Models Using GPUs \fg, \emph{Frontiers in Computational Neuroscience}, vol.~15, article 627620, 2021. \href{https://doi.org/10.3389/fncom.2021.627620}{DOI : 10.3389/fncom.2021.627620}.
+
+\bibitem{vooturi2018} D.~T.~Vooturi, K.~Kothapalli, U.~S.~Bhalla, \og Parallelizing Hines Matrix Solver in Neuron Simulations on GPU \fg, \emph{2017 IEEE 24th International Conference on High Performance Computing (HiPC)}, p.~388--397, 2018. \href{https://doi.org/10.1109/HiPC.2017.00051}{DOI : 10.1109/HiPC.2017.00051}.
+
+\bibitem{bell2009} N.~Bell, M.~Garland, \og Implementing sparse matrix-vector multiplication on throughput-oriented processors \fg, \emph{Proceedings of the Conference on High Performance Computing, Networking, Storage and Analysis (SC'09)}, ACM, 2009. \href{https://doi.org/10.1145/1654059.1654078}{DOI : 10.1145/1654059.1654078}.
+
+\bibitem{techpowerup} \og NVIDIA GeForce RTX 5090 \fg, fiche technique, TechPowerUp. \href{https://www.techpowerup.com/gpu-specs/geforce-rtx-5090.c4216}{www.techpowerup.com/gpu-specs/geforce-rtx-5090.c4216}.
 
 \end{thebibliography}
 
