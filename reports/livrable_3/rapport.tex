@@ -1,0 +1,278 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\setlength{\headheight}{13pt}
+\usepackage{lastpage}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{color}
+\usepackage[table]{xcolor}
+\usepackage{soul}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+\usepackage{tikz}
+\usetikzlibrary{positioning, shapes.geometric, arrows.meta, calc, fit, backgrounds, shadows}
+\usepackage{rotating}
+\usepackage{longtable}
+\usepackage{array}
+
+\newcommand{\DocName}{OPTIMISATION DE MODELES NEURONAUX A OSCILLATEURS COUPLÉS - LIVRABLE 3 : ÉTAT DE L’ART SOUS FORME DE BENCHMARK}
+\newcommand{\DocAuthors}{\bsc{Da Silva} Tristan - \bsc{Battaglia} Charles-Antoine \\ \bsc{Botté-Magalhaes} Jules - \bsc{Gauthier} Keanu - \bsc{Fraysse} Ianis}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{addrred}{rgb}{0.93,0.43,0.43}
+\definecolor{commentgray}{rgb}{0.45,0.45,0.45}
+
+% Palette du benchmark
+\definecolor{bmBest}{HTML}{B5EAD7}
+\definecolor{bmGood}{HTML}{C7E9C0}
+\definecolor{bmMid}{HTML}{FFE699}
+\definecolor{bmLow}{HTML}{FFC0CB}
+
+\lstset{frame=tb,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=none,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{commentgray},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3,
+   }
+
+\lstset{breaklines=true}
+
+\geometry{a4paper, margin=1in}
+
+% Suppression de l'affichage du mot "Chapitre"
+\titleformat{\chapter}[display]
+    {\normalfont\bfseries\LARGE}
+    {}
+    {0pt}
+    {}
+
+\definecolor{Light}{gray}{.90}
+\sethlcolor{Light}
+
+\let\OldTexttt\texttt
+\renewcommand{\texttt}[1]{\OldTexttt{\hl{#1}}}
+
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\thesection}{\thechapter.\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+
+\fancyhf{}
+\fancyhead[L]{\DocName}
+\fancyfoot[L]{\DocAuthors}
+\fancyfoot[R]{\thepage\ / \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0 pt}
+\renewcommand{\footrulewidth}{0.2pt}
+\pagestyle{fancy}
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[R]{\thepage\ / \pageref{LastPage}}
+    \fancyfoot[L]{\DocAuthors}
+    \fancyhead[L]{\DocName}
+}
+
+\graphicspath{ {./img} }
+
+\title{\DocName}
+\author{\DocAuthors}
+\date{\textbf{JUNIA - ISEN - AP4} \url{https://github.com/CharlesBta/Modele-Neuronaux-RD.git}}
+
+\begin{document}
+\maketitle
+
+\chapter*{Lexique}
+\addcontentsline{toc}{chapter}{Lexique}
+
+\begin{tabular}{@{}p{3.9cm}p{11cm}@{}}
+    \textbf{Backend} & Moteur d'exécution d'un simulateur ; Brian2CUDA ajoute par exemple un backend \textbf{GPU} au simulateur Brian. \\[6pt]
+    \textbf{Génération de code} & Production automatique du code \textbf{GPU} à partir d'une description de modèle écrite en langage de haut niveau (\textbf{Python} ou \textbf{Julia}). \\[6pt]
+    \textbf{JAX} & Bibliothèque \textbf{Python} de calcul différentiable avec vectorisation automatique (vmap). \\[6pt]
+    \textbf{Jonction communicante} & \emph{Gap junction} : couplage électrique direct et bidirectionnel entre deux cellules voisines. \\[6pt]
+    \textbf{Julia} & Langage de programmation scientifique haut niveau, proche du \textbf{C++} en performance. \\[6pt]
+    \textbf{MPI} & \emph{Message Passing Interface} : norme d'échange de messages entre machines, utilisée pour répartir une simulation sur plusieurs nœuds de calcul. \\[6pt]
+    \textbf{NEST} & Simulateur de référence pour les grandes populations de neurones simplifiés. \\[6pt]
+    \textbf{NVLink} & Liaison matérielle à très haut débit entre \textbf{GPU} \textbf{NVIDIA}. \\[6pt]
+    \textbf{PyTorch} & Bibliothèque \textbf{Python} d'apprentissage automatique, aussi utilisée pour du calcul \textbf{GPU} généraliste. \\[6pt]
+    \textbf{vmap} & Opération de vectorisation automatique de \textbf{JAX} et \textbf{PyTorch} : une même fonction s'applique à un grand nombre d'éléments en parallèle. \\
+\end{tabular}
+
+\tableofcontents
+
+\chapter{Fiches d'analyse des articles}
+
+\section{Scalable Parallel Programming with CUDA (2008)}
+
+Cet article fondateur, écrit par des ingénieurs \textbf{NVIDIA} et un universitaire \cite{nickolls2008}, explique le modèle de programmation \textbf{CUDA} au moment où les \textbf{CPU} deviennent multicœurs et les \textbf{GPU} massivement parallèles.
+
+\medskip
+\begin{tabular}{|p{3.2cm}|p{11.2cm}|}
+\hline
+\textbf{Pourquoi ?} & Les processeurs grand public gagnent désormais en nombre de cœurs plutôt qu'en fréquence : le matériel devient parallèle, et les logiciels classiques ne le sont pas. Le problème posé : écrire des programmes qui passent à l'échelle quel que soit le nombre de cœurs. \\ \hline
+\textbf{Comment ?} & Le modèle \textbf{CUDA} repose sur trois abstractions : une hiérarchie de groupes de fils d'exécution, des mémoires partagées et des barrières de synchronisation. Le programmeur répartit le travail en blocs de fils sans connaître le nombre de cœurs : le matériel s'occupe de l'ordonnancement. \\ \hline
+\textbf{Avec quoi ?} & Cartes \textbf{GPU} \textbf{NVIDIA} et kit de développement \textbf{CUDA}, illustrés par des exemples d'applications scientifiques parallèles. \\ \hline
+\textbf{Quels résultats ?} & Un même programme \textbf{CUDA} s'exécute sur des \textbf{GPU} de quelques dizaines ou de plusieurs centaines de cœurs sans être réécrit : le parallélisme suit le matériel. \\ \hline
+\textbf{Quelles limites ?} & Article de présentation de 2008 : matériel et outils datés, pas de mesure sur des \textbf{EDO} biologiques, et le programmeur travaille toujours à un niveau bas (gestion fine de la mémoire et des fils). \\ \hline
+\textbf{Pour notre sujet ?} & C'est le socle conceptuel du projet : paralléliser Hodgkin-Huxley voudra dire répartir les neurones sur des fils d'exécution et organiser la mémoire partagée pour le couplage synaptique. \\ \hline
+\end{tabular}
+
+\newpage
+
+\section{GeNN : a code generation framework for accelerated brain simulations (2016)}
+
+GeNN (\emph{GPU-enhanced Neuronal Networks}) est une bibliothèque open source développée à l'université de Sussex pour mettre les \textbf{GPU} à portée des neuroscientifiques \cite{yavuz2016}.
+
+\medskip
+\begin{tabular}{|p{3.2cm}|p{11.2cm}|}
+\hline
+\textbf{Pourquoi ?} & Simuler des réseaux de neurones réalistes est lent, et les accélérateurs \textbf{GPU} restent inaccessibles à ceux qui ne savent pas programmer à bas niveau. \\ \hline
+\textbf{Comment ?} & L'utilisateur décrit ses neurones et ses synapses dans une interface de haut niveau ; GeNN génère automatiquement le code \textbf{CUDA} correspondant, sans exiger de connaissances \textbf{GPU} approfondies. \\ \hline
+\textbf{Avec quoi ?} & \textbf{GPU} \textbf{NVIDIA} ; bancs d'essai sur plusieurs modèles de réseaux, dont un réseau d'un million de neurones de \textbf{Hodgkin-Huxley} à conductance. \\ \hline
+\textbf{Quels résultats ?} & Jusqu'à 200 fois plus rapide qu'un cœur de \textbf{CPU} pour le réseau d'un million de neurones \textbf{Hodgkin-Huxley} ; mais le gain change selon le modèle simulé. \\ \hline
+\textbf{Quelles limites ?} & Gain très dépendant du modèle ; comparaison faite contre un seul cœur de \textbf{CPU}, donc une référence faible ; \textbf{NVIDIA} uniquement. \\ \hline
+\textbf{Pour notre sujet ?} & Preuve directe qu'un réseau de \textbf{Hodgkin-Huxley} à conductance passe à l'échelle sur \textbf{GPU}, et première forme de l'idée de génération de code que notre projet pourra réutiliser ou comparer à des noyaux écrits à la main. \\ \hline
+\end{tabular}
+
+\section{Brian2CUDA : Flexible and Efficient Simulation of Spiking Neural Network Models on GPUs (2022)}
+
+Brian2CUDA ajoute un backend \textbf{GPU} au simulateur Brian2, très utilisé en neurosciences computationnelles \cite{alevi2022}.
+
+\medskip
+\begin{tabular}{|p{3.2cm}|p{11.2cm}|}
+\hline
+\textbf{Pourquoi ?} & Les chercheurs décrivent leurs modèles en \textbf{Python} avec le simulateur Brian2, mais celui-ci n'avait pas de sortie \textbf{GPU} complète : écrire le code bas niveau soi-même demandait un savoir-faire rare. \\ \hline
+\textbf{Comment ?} & Le simulateur génère lui-même le code \textbf{CUDA} à partir de la définition du modèle en \textbf{Python} : un volet pour l'intégration numérique des états des neurones, un autre pour la propagation des événements synaptiques. \\ \hline
+\textbf{Avec quoi ?} & Code \textbf{CUDA} généré ; comparaisons avec le backend \textbf{CPU} de Brian sur plusieurs types de modèles, y compris neurones et synapses arbitraires et plasticité. \\ \hline
+\textbf{Quels résultats ?} & Jusqu'à trois ordres de grandeur d'accélération face au backend \textbf{CPU} de Brian ; seule solution \textbf{GPU} qui couvre toutes les fonctionnalités de Brian2. \\ \hline
+\textbf{Quelles limites ?} & Lié au cadre Brian2 : on doit écrire ses modèles dans ce simulateur ; gain variable selon les modèles ; un seul \textbf{GPU}. \\ \hline
+\textbf{Pour notre sujet ?} & Démontre qu'on peut accélérer sans écrire de \textbf{CUDA} à la main : le modèle décrit en \textbf{Python} est traduit. Notre socle \textbf{Python}/SciPy pourrait suivre la même voie : compiler les équations plutôt que réécrire le solveur. \\ \hline
+\end{tabular}
+\newpage
+\section{Automated Translation and Accelerated Solving of Differential Equations on Multiple GPU Platforms (2024)}
+
+Cet article, publié dans Computer Methods in Applied Mechanics and Engineering \cite{utkarsh2024}, cherche à résoudre beaucoup d'\textbf{EDO} sur \textbf{GPU} sans écrire de code compliqué, et quel que soit le constructeur de la carte.
+
+\medskip
+\begin{tabular}{|p{3.2cm}|p{11.2cm}|}
+\hline
+\textbf{Pourquoi ?} & Résoudre beaucoup d'\textbf{EDO} sur \textbf{GPU} oblige normalement à écrire du code \textbf{CUDA} à la main, et ce code ne fonctionne que sur les cartes \textbf{NVIDIA}. \\ \hline
+\textbf{Comment ?} & Le solveur d'\textbf{EDO} du langage \textbf{Julia} traduit tout seul le code pour la carte : on écrit ses équations comme d'habitude, et elles s'exécutent sur le \textbf{GPU} sans rien changer au modèle. \\ \hline
+\textbf{Avec quoi ?} & Des \textbf{GPU} de quatre constructeurs (\textbf{NVIDIA}, AMD, Intel, Apple), et des comparaisons avec du \textbf{CUDA-C++} écrit à la main puis avec \textbf{JAX} et \textbf{PyTorch}. \\ \hline
+\textbf{Quels résultats ?} & Aussi rapide que du \textbf{CUDA-C++} optimisé à la main, et 20 à 100 fois plus rapide que la solution de \textbf{JAX} et \textbf{PyTorch}. Le même code tourne sur toutes les cartes testées. \\ \hline
+\textbf{Quelles limites ?} & Les \textbf{EDO} de l'article sont indépendantes les unes des autres : pas de synapses ni de connectome, donc pas de couplage irrégulier comme dans notre cas. Et il faut travailler en \textbf{Julia}. \\ \hline
+\textbf{Pour notre sujet ?} & Notre réseau est justement un gros système d'\textbf{EDO}. L'article montre qu'on peut éviter d'écrire le \textbf{CUDA} nous-mêmes et ne pas dépendre d'un seul constructeur. Reste à vérifier si ça marche aussi bien quand les équations sont couplées entre elles. \\ \hline
+\end{tabular}
+
+\section{SimHH : A Versatile, Multi-GPU Simulator for Extended Hodgkin-Huxley Networks (2025)}
+
+SimHH est le travail le plus récent et le plus proche de notre cas : un simulateur de réseaux de \textbf{Hodgkin-Huxley} étendus, distribué sur des clusters de calcul \cite{engelen2025}.
+
+\medskip
+\begin{tabular}{|p{3.2cm}|p{11.2cm}|}
+\hline
+\textbf{Pourquoi ?} & Les réseaux de \textbf{Hodgkin-Huxley} étendus (multi-compartiments, jonctions communicantes) dépassent ce qu'une seule machine peut simuler en un temps raisonnable. \\ \hline
+\textbf{Comment ?} & Répartition de la simulation sur plusieurs nœuds de calcul avec \textbf{MPI} (OpenMPI), avec deux configurations : partager tous les potentiels entre nœuds, ou ne partager que les potentiels utiles ; \textbf{CUDA} et \textbf{NVLink} pour le calcul, les noyaux tournant en parallèle des communications. \\ \hline
+\textbf{Avec quoi ?} & Clusters multi-\textbf{GPU} allant jusqu'à 256 nœuds ; modèles étendus dont le noyau inféro-olivaire ; comparaisons avec des \textbf{CPU}, un \textbf{FPGA} et le simulateur \textbf{NEST}. \\ \hline
+\textbf{Quels résultats ?} & Réseaux de plus de 10 millions de cellules ; environ 150$\times$ plus rapide qu'un \textbf{CPU} mono-fil, 10$\times$ qu'un \textbf{CPU} à 128 fils, 10$\times$ qu'un \textbf{FPGA}, et 7$\times$ que \textbf{NEST} sur 32 nœuds pour un réseau de 94\,720 neurones à jonctions communicantes. \\ \hline
+\textbf{Quelles limites ?} & Exige un cluster de calcul (plusieurs machines reliées) et \textbf{MPI} : une infrastructure bien au-delà d'un serveur universitaire ; la configuration de répartition est délicate à régler. \\ \hline
+\textbf{Pour notre sujet ?} & État de l'art le plus proche : \textbf{Hodgkin-Huxley}, comparaisons honnêtes (\textbf{CPU} multi-fils, \textbf{FPGA}, simulateurs) et preuve qu'un seul \textbf{GPU} finit par saturer. Nos mesures se placeront juste avant cette étape multi-\textbf{GPU}. \\ \hline
+\end{tabular}
+
+\chapter{Benchmark comparatif}
+
+Le tableau ci-dessous compare les cinq approches sur les critères de benchmarking. Les gains de performance sont indiqués par rapport à la référence mesurée dans chaque article.
+
+\medskip
+
+{\setlength{\tabcolsep}{3pt}\footnotesize
+\begin{tabular}{|p{1.8cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.05cm}|p{1.35cm}|p{2.4cm}|p{0.95cm}|}
+\hline
+\rowcolor{gray!15}
+\scriptsize\textbf{Outil} & \scriptsize\textbf{Type} & \scriptsize\textbf{Technicité} & \scriptsize\textbf{Maturité (TRL)} & \scriptsize\textbf{Coût} & \scriptsize\textbf{Facilité} & \scriptsize\textbf{Performance} & \scriptsize\textbf{Moy.} \\ \hline
+
+CUDA \cite{nickolls2008} & Modèle de programmation \textbf{GPU} &
+\cellcolor{bmBest}Très avancé &
+\cellcolor{bmBest}Très mature &
+\cellcolor{bmBest}Gratuit &
+\cellcolor{bmLow}Complexe &
+Sans mesure &
+\cellcolor{bmGood}+ \\ \hline
+
+GeNN \cite{yavuz2016} & Génération de code \textbf{CUDA} &
+\cellcolor{bmGood}Avancé &
+\cellcolor{bmGood}Mature &
+\cellcolor{bmBest}Gratuit &
+\cellcolor{bmGood}Assez facile &
+\cellcolor{bmGood}$\times$200 vs 1 cœur \textbf{CPU} &
+\cellcolor{bmGood}+ \\ \hline
+
+Brian2CUDA \cite{alevi2022} & Backend \textbf{GPU} de Brian2 &
+\cellcolor{bmMid}Modéré &
+\cellcolor{bmMid}Plutôt récent &
+\cellcolor{bmBest}Gratuit &
+\cellcolor{bmBest}Très facile &
+\cellcolor{bmBest}$\times$1000 vs Brian \textbf{CPU} &
+\cellcolor{bmGood}+ \\ \hline
+
+Solveur \textbf{Julia} \cite{utkarsh2024} & Solveur d'\textbf{EDO} multi-\textbf{GPU} &
+\cellcolor{bmGood}Avancé &
+\cellcolor{bmMid}Récent &
+\cellcolor{bmBest}Gratuit &
+\cellcolor{bmGood}Facile &
+\cellcolor{bmBest}$\times$20--100 vs \textbf{JAX}/\textbf{PyTorch} &
+\cellcolor{bmGood}+ \\ \hline
+
+SimHH \cite{engelen2025} & Multi-\textbf{GPU} (\textbf{MPI}) &
+\cellcolor{bmBest}Très avancé &
+\cellcolor{bmLow}Tout récent &
+\cellcolor{bmLow}Exige un cluster &
+\cellcolor{bmLow}Complexe &
+\cellcolor{bmBest}$\times$150 vs \textbf{CPU} mono-fil &
+\cellcolor{bmMid}- \\ \hline
+
+\end{tabular}}
+
+\medskip
+
+\begin{tabular}{|p{1.5cm}|p{6cm}|}
+\hline
+\textbf{Couleur} & \textbf{Signification} \\ \hline
+\cellcolor{bmBest} & \textbf{++} Meilleur cas \\ \hline
+\cellcolor{bmGood} & \textbf{+} Bon cas \\ \hline
+\cellcolor{bmMid} & \textbf{-} Cas plutôt moyen \\ \hline
+\cellcolor{bmLow} & \textbf{--} Cas moyen \\ \hline
+& Non concerné \\ \hline
+\end{tabular}
+
+\begin{thebibliography}{9}
+\addcontentsline{toc}{chapter}{Bibliographie}
+
+\bibitem{nickolls2008} J.~Nickolls, I.~Buck, M.~Garland, K.~Skadron, \og Scalable Parallel Programming with CUDA \fg, \emph{ACM Queue}, vol.~6, n\textsuperscript{o}~2, p.~24--32, mars 2008. \href{https://doi.org/10.1145/1365490.1365500}{DOI : 10.1145/1365490.1365500}.
+
+\bibitem{yavuz2016} E.~Yavuz, J.~Turner, T.~Nowotny, \og GeNN : a code generation framework for accelerated brain simulations \fg, \emph{Scientific Reports}, vol.~6, article 18854, 2016. \href{https://doi.org/10.1038/srep18854}{DOI : 10.1038/srep18854}.
+
+\bibitem{alevi2022} D.~Alevi, M.~Stimberg, H.~Sprekeler, K.~Obermayer, M.~Augustin, \og Brian2CUDA : Flexible and Efficient Simulation of Spiking Neural Network Models on GPUs \fg, \emph{Frontiers in Neuroinformatics}, vol.~16, article 883700, 2022. \href{https://doi.org/10.3389/fninf.2022.883700}{DOI : 10.3389/fninf.2022.883700}.
+
+\bibitem{utkarsh2024} U.~Utkarsh, V.~Churavy, Y.~Ma, T.~Besard, P.~Srisuma, T.~Gymnich, A.~R.~Gerlach, A.~Edelman, G.~Barbastathis, R.~D.~Braatz, C.~Rackauckas, \og Automated Translation and Accelerated Solving of Differential Equations on Multiple GPU Platforms \fg, \emph{Computer Methods in Applied Mechanics and Engineering}, vol.~419, 2024. \href{https://doi.org/10.1016/j.cma.2023.116591}{DOI : 10.1016/j.cma.2023.116591}. Prépublication : \href{https://arxiv.org/abs/2304.06835}{arXiv:2304.06835}.
+
+\bibitem{engelen2025} M.~C.~W.~Engelen, J.-H.~L.~F.~Betting, C.~Strydis, \og SimHH : A Versatile, Multi-GPU Simulator for Extended Hodgkin-Huxley Networks \fg, \emph{IEEE Access}, vol.~13, 2025. \href{https://doi.org/10.1109/ACCESS.2025.3550444}{DOI : 10.1109/ACCESS.2025.3550444}.
+
+\end{thebibliography}
+
+\end{document}
