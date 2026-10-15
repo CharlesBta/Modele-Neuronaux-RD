@@ -22,6 +22,7 @@
 \usepackage{rotating}
 \usepackage{longtable}
 \usepackage{array}
+\usepackage{float}
 
 \newcommand{\DocName}{OPTIMISATION DE MODELES NEURONAUX A OSCILLATEURS COUPLÉS - LIVRABLE 4 : ANALYSE FONCTIONNELLE}
 \newcommand{\DocAuthors}{\bsc{Da Silva} Tristan - \bsc{Battaglia} Charles-Antoine \\ \bsc{Botté-Magalhaes} Jules - \bsc{Gauthier} Keanu - \bsc{Fraysse} Ianis}
@@ -32,24 +33,28 @@
 \definecolor{addrred}{rgb}{0.93,0.43,0.43}
 \definecolor{commentgray}{rgb}{0.45,0.45,0.45}
 
-% Palette des fonctions
-\definecolor{fpColor}{HTML}{B5EAD7}
-\definecolor{fsColor}{HTML}{C7E9C0}
-\definecolor{fcColor}{HTML}{FFE699}
-\definecolor{pocColor}{HTML}{FFF3B0}
-\definecolor{matGray}{gray}{0.88}
-\definecolor{fsMark}{RGB}{230,155,15}
-
-% Palette des schémas (reprise des livrables précédents)
+% Palette de la bête à cornes (L2)
+\definecolor{hubbg}{RGB}{23,48,77}
+\definecolor{hubrule}{RGB}{150,178,206}
+\definecolor{cardink}{RGB}{33,41,54}
+\definecolor{cardline}{RGB}{160,172,186}
 \definecolor{whyborder}{RGB}{31,92,139}
 \definecolor{whybg}{RGB}{243,248,252}
 \definecolor{whatborder}{RGB}{34,116,80}
 \definecolor{whatbg}{RGB}{243,250,246}
 \definecolor{defiborder}{RGB}{166,54,45}
 \definecolor{defibg}{RGB}{253,245,244}
-\definecolor{hubbg}{RGB}{23,48,77}
-\definecolor{cardink}{RGB}{33,41,54}
-\definecolor{cardline}{RGB}{160,172,186}
+
+% Palette du benchmark (L3), reprise pour les fonctions cœur du POC
+\definecolor{bmMid}{HTML}{FFE699}
+\definecolor{pocborder}{RGB}{191,144,0}
+
+% Échelle de couleur du classement (vert = poids fort, rouge = poids nul)
+\definecolor{resVert}{HTML}{90EE90}
+\definecolor{resJaune}{HTML}{FFE97F}
+\definecolor{resOrange}{HTML}{FFC58A}
+\definecolor{resRougeC}{HTML}{FF9E8A}
+\definecolor{resRouge}{HTML}{FF5C5C}
 
 \lstset{frame=tb,
     aboveskip=3mm,
@@ -58,7 +63,7 @@
     columns=flexible,
     basicstyle={\small\ttfamily},
     numbers=none,
-    numberstyle={\tiny\color{gray}},
+    numberstyle=\tiny\color{gray},
     keywordstyle=\color{blue},
     commentstyle=\color{commentgray},
     breaklines=true,
@@ -113,62 +118,28 @@
 \chapter*{Lexique}
 \addcontentsline{toc}{chapter}{Lexique}
 
+\medskip
 \begin{tabular}{@{}p{3.9cm}p{11cm}@{}}
-    \textbf{Analyse fonctionnelle} & Démarche qui décrit les fonctions qu'un système doit remplir, indépendamment des solutions techniques qui les réalisent. \\
-    \textbf{Bête à cornes} & Diagramme d'expression du besoin : à qui le système rend-il service, sur quoi agit-il, dans quel but ? \\
-    \textbf{Caractérisation} & Définition mesurable d'une fonction : critère d'appréciation, niveau visé, tolérance admise et flexibilité. \\
-    \textbf{Connectome} & Matrice $N \times N$ décrivant les connexions synaptiques entre les $N$ neurones du réseau. \\
-    \textbf{CSR} & \emph{Compressed Sparse Row} : stockage d'une matrice creuse par lignes compactées, adapté au connectome sur \textbf{GPU}. \\
-    \textbf{EDO} & Équation différentielle ordinaire ; le modèle de \textbf{Hodgkin-Huxley} est un système d'\textbf{EDO}. \\
-    \textbf{Flexibilité} & Niveau de négociabilité d'un critère, de 0 (aucune marge) à 4 (critère indicatif). \\
-    \textbf{Fonction principale} & Fonction qui justifie l'existence du système face à son client. \\
-    \textbf{Fonction de service} & Fonction qui rend service à l'utilisateur ou s'adapte à son environnement. \\
-    \textbf{Fonction de contrainte} & Fonction imposée par le client, le matériel ou le calendrier, non négociable dans son principe. \\
-    \textbf{Pieuvre} & Diagramme des interactions entre le système et les éléments de son environnement. \\
-    \textbf{Speedup} & Rapport des temps de calcul entre la référence \textbf{CPU} et la version \textbf{GPU} pour une même simulation. \\
-    \textbf{Tri croisé} & Comparaison des fonctions deux à deux pour les hiérarchiser et en déduire des priorités. \\
-    \textbf{VRAM} & Mémoire embarquée du \textbf{GPU} ; sur la \textbf{RTX~5090}, elle borne la taille des connectomes simulables. \\
+    \textbf{Diagramme pieuvre} & Schéma qui place le système au centre de ses éléments extérieurs et trace les fonctions qui les relient. \\[6pt]
+    \textbf{Fonction contrainte (FC)} & Limite imposée au système par un élément extérieur ; elle restreint la liberté de conception. \\[6pt]
+    \textbf{Fonction principale (FP)} & Service que le système rend à l'utilisateur, raison d'être du système. \\[6pt]
+    \textbf{Fonction secondaire (FS)} & Service qui complète ou rend possible une fonction principale. \\[6pt]
+    \textbf{Speedup} & Rapport du temps de calcul de la référence \textbf{CPU} sur le temps de calcul du système. \\[6pt]
+    \textbf{Format creux} & Stockage d'une matrice qui ne garde que ses éléments non nuls (par exemple \textbf{CSR}), adapté aux connectomes peu denses. \\[6pt]
+    \textbf{POC} & \emph{Proof of Concept} : preuve de concept, version réduite du système qui démontre la faisabilité de ses fonctions essentielles. \\[6pt]
+    \textbf{Tri croisé} & Méthode de hiérarchisation qui compare les fonctions deux à deux et cumule des points d'importance. \\
+
 \end{tabular}
 
 \tableofcontents
 
-\chapter{Introduction}
+\chapter{Introduction et expression du besoin}
 
-\section{Objet du document}
+Ce document est le livrable L4 du projet R\&D : l'\textbf{analyse fonctionnelle}. Le livrable L2 a posé le besoin du laboratoire de M.~Pirog et cadré le projet ; le livrable L3 a montré, par l'état de l'art, les ordres de grandeur que le \textbf{GPU} peut apporter. Ce document fait le passage suivant : il décrit \emph{ce que} le système doit faire, sans préjuger du \emph{comment}, pour préparer les choix techniques du second semestre. Le besoin est d'abord exprimé et validé; les fonctions sont ensuite recensées et représentées par le diagramme pieuvre, puis caractérisées et enfin hiérarchisées pour dégager les fonctions cœur du \textbf{POC}.
 
-Ce document est le livrable L4 du projet R\&D : l'\textbf{analyse fonctionnelle}. La note de clarification (L2) a posé le besoin du laboratoire et le périmètre ; l'état de l'art (L3) a montré ce que la littérature mesure déjà sur l'accélération \textbf{GPU} de simulations de neurones. Avant de choisir des solutions techniques, il faut décrire ce que le système \emph{doit faire} pour son utilisateur, sans préjuger du \emph{comment}.
+Le système étudié est celui de la vision posée en L2 : un \textbf{environnement de simulation de réseaux de neurones couplés sur GPU}. Son besoin, tel que l'a validé la note de clarification, tient en une phrase : \emph{simuler des réseaux de neurones biophysiques de grande taille dans un temps de calcul acceptable, et savoir si le \textbf{GPU} apporte un gain réel face à la référence \textbf{CPU}}.
 
-L'analyse fonctionnelle sert ici trois objectifs :
-\begin{itemize}
-    \item \textbf{formaliser les fonctions} que l'environnement de simulation doit remplir, en les classant en fonctions principales (\textbf{FP}), fonctions de service (\textbf{FS}) et fonctions de contrainte (\textbf{FC}) ;
-    \item \textbf{caractériser chaque fonction} par un critère mesurable, un niveau visé, une tolérance et une flexibilité, pour que la suite du projet dispose d'exigences vérifiables ;
-    \item \textbf{hiérarchiser les fonctions} par la méthode du tri croisé, afin de délimiter ce que le POC réalisera en priorité dans la limite des 100~h du second semestre.
-\end{itemize}
-
-Ce document s'appuie sur le besoin exprimé en L2, sur le socle de code fourni (modèle de \textbf{Hodgkin-Huxley}, synapses, solveur \textbf{CPU} de référence) et sur les conclusions du benchmark L3. Il prépare le livrable L5 (FAST et schéma synoptique) : les fonctions prioritaires dégagées ici seront déclinées en solutions techniques dans le FAST.
-
-\section{Rappel du défi technique issu du benchmarking}
-
-L'état de l'art a comparé cinq approches d'accélération \textbf{GPU} de simulations neuronales : \textbf{CUDA} \cite{nickolls2008}, le générateur de code GeNN \cite{yavuz2016}, le backend Brian2CUDA \cite{alevi2022}, un solveur d'\textbf{EDO} multi-\textbf{GPU} en \textbf{Julia} \cite{utkarsh2024} et le simulateur multi-\textbf{GPU} SimHH \cite{engelen2025}.
-
-Trois enseignements en ressortent :
-\begin{itemize}
-    \item \textbf{le gain est réel} : les outils publiés annoncent des accélérations de $\times$100 à $\times$1000 face à une référence \textbf{CPU} mono-cœur, jusqu'à $\times$150 pour SimHH, le plus proche de notre sujet (réseaux de \textbf{Hodgkin-Huxley}) ;
-    \item \textbf{aucun ne répond directement au besoin} : SimHH exige un cluster en \textbf{MPI}, GeNN et Brian2CUDA visent des réseaux à impulsions plutôt que notre couplage oscillateurs synaptiques, et le solveur \textbf{Julia} impose de traduire le socle existant ;
-    \item \textbf{le verrou est identifié} : le pas de temps s'enchaîne séquentiellement et le connectome, matrice creuse irrégulière, provoque des accès mémoire non uniformes qui plafonnent le parallélisme \cite{bell2009}.
-\end{itemize}
-
-Le défi technique que doit relever le POC est donc le suivant : \emph{réussir là où les outils généraux sont trop lourds, un portage \textbf{CUDA} ciblé du socle fourni, qui accélère significativement la simulation de réseaux de \textbf{Hodgkin-Huxley} couplés sans dérive numérique par rapport à la référence \textbf{CPU}, sur une seule \textbf{RTX~5090}}. Les fonctions décrites dans la suite découlent de ce défi.
-
-\chapter{Expression du besoin}
-
-Le besoin du laboratoire, formulé et validé en L2, rappelé ici car l'analyse fonctionnelle en découle :
-
-\begin{quote}
-\itshape Le laboratoire a besoin de pouvoir simuler des réseaux de neurones biophysiques de grandes tailles dans un temps de calcul acceptable, afin d'étudier des connectomes assez grands pour être utiles à la recherche, et de savoir si l'architecture \textbf{GPU} dont il dispose apporte un gain réel face à la référence \textbf{CPU}.
-\end{quote}
-
-La bête à cornes ci-dessous, reprise de la note de clarification, formalise ce besoin.
+\section{Bête à cornes}
 
 \begin{figure}[!htbp]
 \centering
@@ -186,22 +157,21 @@ La bête à cornes ci-dessous, reprise de la note de clarification, formalise ce
     },
     link/.style={->, line width=1.1pt, draw=cardline, rounded corners=4pt}
 ]
-
 \node[ans, draw=whyborder, fill=whybg, text width=4.3cm] (QUI) at (-5.3,2.4) {%
     Laboratoire de recherche de M.~Pirog :\\[4pt]
     -- chercheurs en neurosciences computationnelles ;\\[4pt]
     -- encadrants du projet R\&D.};
 
 \node[ans, draw=defiborder, fill=defibg, text width=4.3cm] (MILIEU) at (5.3,2.4) {%
-    Les modèles de neurones Hodgkin-Huxley couplés par synapses et les connectomes structurés synthétiques,\\[4pt]
-};
+    Les modèles de neurones Hodgkin-Huxley couplés par synapses et les connectomes structurés synthétiques.};
 
 \node[qlabel, fill=whyborder, anchor=south west] at ([xshift=4pt]QUI.north west) {À qui rend-il service ?};
 \node[qlabel, fill=defiborder, anchor=south west] at ([xshift=4pt]MILIEU.north west) {Sur quoi agit-il ?};
 
 \node[ans, draw=hubbg, fill=hubbg, text width=8.6cm, text=white, align=center] (SYS) at (0,-1.8) {%
     {\scriptsize\bfseries LE SYSTÈME}\\[6pt]
-    {\small\bfseries Environnement de simulation de réseaux de neurones couplés sur \textbf{GPU}}};
+    {\small\bfseries Environnement de simulation de réseaux de neurones couplés sur \textbf{GPU}}
+};
 
 \node[ans, draw=whatborder, fill=whatbg, text width=10.6cm, align=center] (BUT) at (0,-6.0) {%
     Étudier des connectomes assez grands pour être utiles à la recherche,\\[4pt]
@@ -213,353 +183,221 @@ La bête à cornes ci-dessous, reprise de la note de clarification, formalise ce
 \draw[link] (QUI.south) -- (SYS.west);
 \draw[link] (SYS.east) -- (MILIEU.south);
 \draw[link] (SYS.south) -- (BUT.north);
-
 \end{tikzpicture}}%
-\caption{Bête à cornes du projet (reprise de la note de clarification)}
+\caption{Bête à cornes du projet : à qui rend-il service, sur quoi agit-il, dans quel but ?}
+\label{fig:bete}
 \end{figure}
 
-\chapter{Graphe des fonctions}
+\chapter{Fonctions du système}
 
-\section{Pieuvre du système}
+\section{Liste des fonctions}
 
-Le système interagit avec les éléments de son environnement : le laboratoire qui l'utilise, le socle de code sur lequel il s'appuie, les connectomes qu'il reçoit en entrée, le serveur \textbf{GPU} sur lequel il s'exécute et le calendrier du projet. Le diagramme pieuvre ci-dessous relie le système à ces éléments : une seule bulle au centre pour le produit, et une bulle propre à chaque fonction, placée près du centre et reliée au produit par une seule flèche ; la pastille portée par la flèche donne le code de la fonction, sa couleur indiquant la famille (fonction principale, secondaire ou de contrainte, voir légende).
+Le système doit remplir des fonctions, réparties en trois familles : les fonctions principales (FP), les fonctions secondaires (FS) et les fonctions de contrainte (FC). 
 
-\begin{figure}[!htbp]
-\centering
-\scalebox{0.72}{%
-\begin{tikzpicture}[
-    >={Stealth[length=2.2mm,width=1.8mm]},
-    env/.style={
-        rectangle, rounded corners=4pt, align=center,
-        line width=1pt, inner sep=5pt, font=\scriptsize,
-        text width=2.2cm, text=cardink
-    },
-    sys/.style={
-        rectangle, rounded corners=6pt, align=center,
-        line width=1.4pt, inner sep=10pt, font=\small\bfseries,
-        text width=4.6cm, text=white
-    },
-    leg/.style={
-        rectangle, rounded corners=3pt, font=\scriptsize\bfseries,
-        inner sep=3pt, text=white
-    },
-    fl/.style={<->, line width=1.6pt, draw=cardline, rounded corners=2pt},
-    flabel/.style={inner sep=1pt, font=\scriptsize\bfseries},
-    fmark/.style={circle, inner sep=1.5pt, font=\scriptsize\bfseries, text=white}
-]
-
-\node[sys, draw=hubbg, fill=hubbg] (SYS) at (0,0) {%
-    LE SYSTÈME\\[4pt]
-    Environnement de simulation de réseaux de neurones couplés\\[3pt]
-    {\footnotesize (socle Python + portage GPU)}};
-
-% Une bulle par fonction, proche du centre
-\node[env, draw=whyborder, fill=whybg] (B_FP3) at (90:4.8) {%
-    \textbf{Laboratoire}\\ chercheurs, encadrants};
-\node[env, draw=defiborder, fill=defibg] (B_FC4) at (130:4.8) {%
-    \textbf{Protocole de mesure}\\ graines, répétitions};
-\node[env, draw=whyborder, fill=whybg] (B_FP2) at (50:4.8) {%
-    \textbf{Serveur GPU}\\ RTX 5090};
-\node[env, draw=defiborder, fill=defibg] (B_FC2) at (10:5.6) {%
-    \textbf{VRAM disponible}\\ 32 Go};
-\node[env, draw=defiborder, fill=defibg] (B_FC3) at (-30:4.8) {%
-    \textbf{Calendrier}\\ jalons, 100 h};
-\node[env, draw=whatborder, fill=whatbg] (B_FS1) at (-70:4.8) {%
-    \textbf{Connectomes synthétiques}\\ tailles, topologies};
-\node[env, draw=whyborder, fill=whybg] (B_FP1) at (-110:4.8) {%
-    \textbf{Socle de code fourni}\\ modèle HH, référence CPU};
-\node[env, draw=defiborder, fill=defibg] (B_FC1) at (-150:4.8) {%
-    \textbf{Modèle HH et solveur}\\ imposés par le laboratoire};
-\node[env, draw=whatborder, fill=whatbg] (B_FS2) at (170:5.6) {%
-    \textbf{Autres modèles}\\ vision long terme};
-
-% Une flèche par fonction, du système vers sa bulle
-\draw[fl] (SYS.90) -- (B_FP3.-90) node[fmark, fill=whyborder, pos=0.45] {FP3};
-\draw[fl] (SYS.130) -- (B_FC4.-50) node[fmark, fill=defiborder, pos=0.45] {FC4};
-\draw[fl] (SYS.50) -- (B_FP2.-130) node[fmark, fill=whyborder, pos=0.45] {FP2};
-\draw[fl] (SYS.10) -- (B_FC2.-170) node[fmark, fill=defiborder, pos=0.45] {FC2};
-\draw[fl] (SYS.-30) -- (B_FC3.150) node[fmark, fill=defiborder, pos=0.45] {FC3};
-\draw[fl] (SYS.-70) -- (B_FS1.110) node[fmark, fill=fsMark, pos=0.45] {FS1};
-\draw[fl] (SYS.-110) -- (B_FP1.70) node[fmark, fill=whyborder, pos=0.45] {FP1};
-\draw[fl] (SYS.-150) -- (B_FC1.30) node[fmark, fill=defiborder, pos=0.45] {FC1};
-\draw[fl] (SYS.170) -- (B_FS2.-10) node[fmark, fill=fsMark, pos=0.45] {FS2};
-
-% Légende des familles de fonctions
-\node[font=\scriptsize\bfseries, anchor=west] at (-7.8,-6.6) {Légende :};
-\node[fmark, fill=whyborder] at (-5.9,-6.6) {FP};
-\node[flabel, anchor=west] at (-5.4,-6.6) {fonction principale};
-\node[fmark, fill=fsMark] at (-2.7,-6.6) {FS};
-\node[flabel, anchor=west] at (-2.2,-6.6) {fonction secondaire};
-\node[fmark, fill=defiborder] at (0.6,-6.6) {FC};
-\node[flabel, anchor=west] at (1.1,-6.6) {fonction de contrainte};
-
-\end{tikzpicture}}%
-\caption{Pieuvre du système : interactions avec l'environnement et fonctions associées}
-\end{figure}
-
-\section{Tableau des fonctions}
-
-L'analyse des interactions ci-dessus fait ressortir neuf fonctions, réparties en trois familles. Les fonctions principales rendent le service attendu par le laboratoire ; les fonctions de service adaptent ce service à l'usage ; les fonctions de contrainte sont imposées et bornent la conception.
-
-{\footnotesize
-\begin{longtable}{|p{1.1cm}|p{12.2cm}|p{1.3cm}|}
+{\small
+\begin{longtable}{|p{0.9cm}|p{8.6cm}|p{2.7cm}|}
 \hline
-\rowcolor{matGray}
-\textbf{Code} & \textbf{Fonction} & \textbf{Type} \\ \hline
-\endfirsthead
-\hline
-\rowcolor{matGray}
-\textbf{Code} & \textbf{Fonction} & \textbf{Type} \\ \hline
+\rowcolor{gray!15} \textbf{Code} & \textbf{Fonction} & \textbf{Éléments reliés} \\ \hline
 \endhead
-\cellcolor{fpColor} FP1 & Simuler des réseaux de neurones \textbf{Hodgkin-Huxley} couplés par synapses, en calculant l'évolution des potentiels membranaires à chaque pas de temps. & FP \\ \hline
-\cellcolor{fpColor} FP2 & Accélérer la simulation sur \textbf{GPU} et mesurer le gain de temps de calcul face à la référence \textbf{CPU}. & FP \\ \hline
-\cellcolor{fpColor} FP3 & Restituer les résultats aux chercheurs (tracés, temps de calcul, erreurs) sous une forme lisible et exploitable. & FP \\ \hline
-\cellcolor{fsColor} FS1 & S'adapter à différentes tailles et topologies de connectomes. & FS \\ \hline
-\cellcolor{fsColor} FS2 & Adapter les équations du modèle neuronal pour simuler d'autres phénomènes (autres modèles de neurones, variantes des équations) sans réécrire la chaîne de simulation. & FS \\ \hline
-\cellcolor{fcColor} FC1 & Respecter le modèle de \textbf{Hodgkin-Huxley} et sa méthode de résolution : mêmes équations, même schéma d'intégration que le socle de référence. & FC \\ \hline
-\cellcolor{fcColor} FC2 & Fonctionner sur le matériel disponible : une \textbf{RTX~5090}, 32~Go de \textbf{VRAM}. & FC \\ \hline
-\cellcolor{fcColor} FC3 & Respecter le temps et le calendrier du projet (32~h d'études au S7, 100~h de réalisation au S8, jalons imposés). & FC \\ \hline
-\cellcolor{fcColor} FC4 & Garantir des mesures reproductibles : protocole de benchmark documenté, mesures répétées, graines fixées. & FC \\ \hline
-\caption{Tableau des fonctions du système}
-\end{longtable}
-}
+\rowcolor{whybg} \textbf{FP1} & Simuler des réseaux de neurones \textbf{Hodgkin-Huxley} couplés par \textbf{synapses}, en calculant l'évolution des potentiels membranaires à chaque pas de temps. & Modèle neuronal, connectome \\ \hline
+\rowcolor{whybg} \textbf{FP2} & Accélérer la simulation sur \textbf{GPU}. & Serveurs \textbf{GPU}, référence \textbf{CPU} \\ \hline
+\rowcolor{whybg} \textbf{FP3} & Restituer les résultats aux chercheurs (tracés, temps de calcul, erreurs) sous une forme lisible et exploitable. & Chercheur, modèle neuronal \\ \hline
+\rowcolor{whatbg} \textbf{FS1} & S'adapter à différentes tailles et topologies de connectomes. & Connectome  \\ \hline
+\rowcolor{whatbg} \textbf{FS2} & Adapter les équations du modèle neuronal pour simuler d'autres phénomènes (autres modèles de neurones, variantes des équations) sans réécrire la chaîne de simulation. & Modèle neuronal  \\ \hline
+\rowcolor{whatbg} \textbf{FS3} & Garantir des mesures reproductibles : protocole de benchmark documenté, mesures répétées, graines fixées. & Encadrants  \\ \hline
+\rowcolor{defibg} \textbf{FC1} & Respecter le modèle de \textbf{Hodgkin-Huxley} et sa méthode de résolution : mêmes équations, même schéma d'intégration que le socle de référence. & Référence \textbf{CPU} \\ \hline
+\rowcolor{defibg} \textbf{FC2} & Fonctionner sur le matériel cible : un \textbf{GPU}. & Serveurs \textbf{GPU} \\ \hline
+\rowcolor{defibg} \textbf{FC3} & Respecter le temps et le calendrier du projet (32~h d'études au S7, 100~h de réalisation au S8, jalons imposés). & Calendrier \\ \hline
+\end{longtable}}
 
-\paragraph{Lecture.} FP1 est la fonction qui justifie l'existence du système : sans simulation fidèle du réseau couplé, rien d'autre n'a de sens. FP2 est la raison d'être du projet R\&D : le laboratoire veut savoir si le \textbf{GPU} apporte un gain réel. FP3 boucle le service : des résultats que seul une machine sait lire ne servent pas des chercheurs. Les fonctions de service préparent l'environnement générique visé par la vision du L2 : FS2 rend les équations du modèle remplaçables pour simuler d'autres phénomènes. Les contraintes bornent le terrain de jeu : le respect du modèle de \textbf{Hodgkin-Huxley} et de sa méthode de résolution n'est pas négociable (sinon le speedup ne mesure rien), la \textbf{VRAM} et le calendrier fixent les limites physiques et humaines du POC.
+\section{Diagramme pieuvre}
+
+Le système interagit avec plusieurs éléments de son environnement : le chercheur du laboratoire, le modèle neuronal, le connectome, les serveurs GPU, ou encore la référence CPU. Ces interactions sont traduites par des fonctions principales, secondaires et des contraintes, présentées dans le diagramme pieuvre ci-dessous.
+
+\begin{figure}[H]
+\centering
+\scalebox{0.82}{%
+\begin{tikzpicture}[
+    milieu/.style={ellipse, draw=cardline, fill=gray!8, line width=1pt, align=center,
+        font=\footnotesize\bfseries, text=cardink, inner sep=1pt, minimum height=1.1cm, minimum width=2.9cm},
+    fp/.style={line width=1.5pt, draw=whyborder},
+    fs/.style={line width=1.5pt, draw=whatborder},
+    fc/.style={line width=1.5pt, draw=defiborder},
+    lab/.style={font=\scriptsize\bfseries, fill=white, inner sep=1.5pt, rounded corners=2pt}
+]
+% --- Système : bulle claire, les traits passent par-dessus --------------------
+\node[rectangle, rounded corners=12pt, fill=hubrule!35, draw=hubbg, line width=1.4pt,
+      minimum width=6.8cm, minimum height=3.4cm] (SYS) at (0,0) {};
+\node[align=center, font=\small\bfseries, text=hubbg] at (0,0)
+      {Environnement de simulation\\de réseaux de neurones\\couplés sur GPU};
+
+% --- Éléments extérieurs ----------------------------------------------------
+\node[milieu] (CH) at (-6.6,3.0) {Chercheur du\\laboratoire};
+\node[milieu] (MO) at (-2.2,4.9) {Modèle neuronal\\(Hodgkin-Huxley)};
+\node[milieu] (CO) at (6.6,3.0) {Connectome};
+\node[milieu] (REF) at (-7.6,-0.4) {Référence CPU\\(socle fourni)};
+\node[milieu] (GPU) at (7.6,-0.4) {Serveurs GPU\\Junia (RTX 5090)};
+\node[milieu] (CAL) at (-4.2,-4.4) {Calendrier\\du projet};
+\node[milieu] (ENC) at (4.2,-4.4) {Encadrants\\(évaluation)};
+
+% --- Fonctions principales : le trait traverse la bulle -----------------------
+\draw[fp] (CH.south east) .. controls (-4.0,1.3) and (-3.5,0.6) .. node[lab, text=whyborder, pos=0.3]{FP3} (-2.6,0.75)
+          .. controls (-1.9,0.9) and (-2.1,3.0) .. (MO.south west);
+\draw[fp] (MO.south east) .. controls (-0.7,2.8) and (0.3,0.9) .. node[lab, text=whyborder, pos=0.3]{FP1} (1.4,0.9)
+          .. controls (2.6,0.9) and (4.6,1.9) .. (CO.south west);
+\draw[fp] (REF.east) .. controls (-4.6,-0.6) and (-2.6,-1.05) .. node[lab, text=whyborder, pos=0.25]{FP2} (0,-1.05)
+          .. controls (2.6,-1.05) and (4.6,-0.6) .. (GPU.west);
+
+% --- Fonctions secondaires : le trait s'arrête dans la bulle -------------------
+\draw[fs] (MO.south) .. controls (-1.8,2.6) and (-1.0,1.7) .. node[lab, text=whatborder, pos=0.3]{FS2} (-0.9,1.05);
+\fill[whatborder] (-0.9,1.05) circle (2.2pt);
+\draw[fs] (CO.south) .. controls (6.2,1.0) and (4.0,0.5) .. node[lab, text=whatborder, pos=0.3]{FS1} (2.6,0.45);
+\fill[whatborder] (2.6,0.45) circle (2.2pt);
+
+% --- Fonctions contraintes -----------------------------------------------------
+\draw[fc] (REF.north east) .. controls (-5.0,0.7) and (-3.8,0.2) .. node[lab, text=defiborder, pos=0.3]{FC1} (-2.9,0.1);
+\fill[defiborder] (-2.9,0.1) circle (2.2pt);
+\draw[fc] (GPU.north west) .. controls (5.0,0.5) and (3.8,-0.35) .. node[lab, text=defiborder, pos=0.3]{FC2} (2.9,-0.35);
+\fill[defiborder] (2.9,-0.35) circle (2.2pt);
+\draw[fc] (CAL.north) .. controls (-3.6,-2.6) and (-2.2,-1.4) .. node[lab, text=defiborder, pos=0.3]{FC3} (-1.4,-1.38);
+\fill[defiborder] (-1.4,-1.38) circle (2.2pt);
+\draw[fs] (ENC.north) .. controls (3.6,-2.6) and (2.2,-1.4) .. node[lab, text=whatborder, pos=0.3]{FS3} (1.4,-1.38);
+\fill[whatborder] (1.4,-1.38) circle (2.2pt);
+
+% --- Légende ---------------------------------------------------------------
+\node[draw=cardline, rounded corners=3pt, fill=white, align=left, font=\scriptsize,
+      inner sep=4pt, anchor=north east] at (9.1,5.6) {%
+    \tikz\draw[fp] (0,0)--(0.6,0); \ Fonction principale (FP)\\[2pt]
+    \tikz\draw[fs] (0,0)--(0.6,0); \ Fonction secondaire (FS)\\[2pt]
+    \tikz\draw[fc] (0,0)--(0.6,0); \ Fonction contrainte (FC)};
+\end{tikzpicture}}%
+\caption{Diagramme pieuvre : les fonctions principales traversent le système pour relier deux éléments extérieurs ; les autres s'arrêtent dans le système.}
+\label{fig:pieuvre}
+\end{figure}
 
 \chapter{Caractérisation des fonctions}
 
-Chaque fonction est caractérisée par un critère d'appréciation (ce que l'on mesure), un niveau (la valeur visée), une tolérance (la marge admise) et une flexibilité (de 0 : aucune marge, à 4 : critère indicatif). Les niveaux s'appuient sur le socle fourni, les mesures du benchmark CPU existant et l'état de l'art (les sources sont détaillées en annexe~A).
+\section{Méthode}
 
-{\footnotesize\setlength{\tabcolsep}{4pt}
-\begin{longtable}{|p{1.0cm}|p{2.8cm}|p{3.2cm}|p{3.4cm}|p{1.8cm}|p{1.3cm}|}
+Chaque fonction est caractérisée par un ou plusieurs \textbf{critères}, un \textbf{niveau} visé pour chacun, une \textbf{tolérance} et une \textbf{flexibilité}. Les classes de flexibilité sont celles du cahier des charges fonctionnel : \textbf{F0} impérative (limite physique ou cadre imposé), \textbf{F1} peu négociable, \textbf{F2} négociable (un résultat en dessous du niveau reste exploitable) et \textbf{F3} très négociable.
+
+\section{Tableau de caractérisation}
+
+Les lignes sont colorées selon la famille de la fonction et les fonctions cœur du \textbf{POC} sont repérées par une étoile (*).
+
+{\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{longtable}{|p{1.0cm}|p{4.6cm}|p{4.3cm}|p{3.4cm}|p{0.8cm}|}
 \hline
-\rowcolor{matGray}
-\textbf{Code} & \textbf{Critère} & \textbf{Description} & \textbf{Niveau} & \textbf{Tolérance} & \textbf{Flex.} \\ \hline
+\rowcolor{gray!15}
+\textbf{Fct.} & \textbf{Critère} & \textbf{Niveau} & \textbf{Tolérance} & \textbf{Flex.} \\ \hline
 \endfirsthead
 \hline
-\rowcolor{matGray}
-\textbf{Code} & \textbf{Critère} & \textbf{Description} & \textbf{Niveau} & \textbf{Tolérance} & \textbf{Flex.} \\ \hline
+\rowcolor{gray!15}
+\textbf{Fct.} & \textbf{Critère} & \textbf{Niveau} & \textbf{Tolérance} & \textbf{Flex.} \\ \hline
 \endhead
 
-\cellcolor{fpColor} FP1 &
-Fidélité de la simulation &
-Simuler le réseau couplé et reproduire les tracés de référence du solveur CPU &
-Superposition exacte des tracés de référence sur les réseaux de validation ($N = 2$ à $16$) &
-Erreur relative $\leq 10^{-4}$ par variable d'état &
-F1 \\ \hline
+\rowcolor{whybg} \textbf{FP1*} & Taille du réseau simulé & $10^3$ neurones & Quelques centaines (100) & F1 \\ \hline
+\rowcolor{whybg} & Modèle simulé & Neurone de \textbf{Hodgkin-Huxley} et \textbf{synapse} du socle fourni & Aucune & F0 \\ \hline
+\rowcolor{whybg} \textbf{FP2*} & \textbf{Speedup} face à la référence \textbf{CPU} du socle & $\geq 10$ (pour réseau de taille importante) & $> 1$ (un gain nul reste un résultat) & F2 \\ \hline
+\rowcolor{whybg} & \textbf{Speedup} face à une référence \textbf{CPU} optimisée (multi-cœur) & Mesuré face au socle seul, limite signalée & Aucune & F1 \\ \hline
+\rowcolor{whybg} & Gamme de tailles $N$ et seuil du \textbf{GPU} & Taille à partir de laquelle le \textbf{GPU} devient plus rapide, identifiée pour chaque topologie & Identifiée pour au moins une topologie & F1 \\ \hline
+\rowcolor{whybg} \textbf{FP3} & Résultats restitués & Tracés, temps de calcul, erreurs, fichiers lisibles par \textbf{Python} (NumPy, CSV) & Tracés et temps de calcul seuls & F1 \\ \hline
+\rowcolor{whybg} & Format des fichiers & Lisible en \textbf{Python} (NumPy, CSV) & Tout format ouvert & F2 \\ \hline
+\rowcolor{whatbg} \textbf{FS1*} & Topologies de connectome & Chaîne, tout-à-tout, aléatoire, connectome creux & Chaîne et tout-à-tout suffisent & F1 \\ \hline
+\rowcolor{whatbg} \textbf{FS2} & Changement d'équations & Par configuration, sans modifier le moteur & Modification d'un seul fichier ; second modèle si le temps le permet & F1 \\ \hline
+\rowcolor{whatbg} \textbf{FS3} & Optimisation du temps et protocole & Calcul et transferts mémoire séparés ; protocole de benchmark écrit dans le rapport & Temps de calcul uniquement & F1 \\ \hline
+\rowcolor{defibg} \textbf{FC1*} & Équations et schéma d'intégration & Identiques au socle de référence & Aucune & F0 \\ \hline
+\rowcolor{defibg} & Précision des calculs & Double précision (FP64), comme la référence & Simple précision (FP32) si les tracés restent superposés à la référence & F2 \\ \hline
+\rowcolor{defibg} \textbf{FC2*} & Matériel et mémoire & \textbf{RTX~5090} $32$~Go de \textbf{VRAM} & Aucune & F0 \\ \hline
+\rowcolor{defibg} \textbf{FC3} & Volume horaire et jalons & 32~h au S7 ; 100~h au S8 (60~h de développement, 15~h de tests, 25~h d'analyse) ; jalons respectés & Aucune & F0 \\ \hline
+\end{longtable}}
 
-\cellcolor{fpColor} FP2 &
-Gain de temps mesuré &
-Accélérer la simulation sur GPU et quantifier le speedup face à la référence CPU &
-Speedup $\geq \times 10$ sur les plus grands réseaux testés &
-$\pm$ 50 \% selon la taille et la topologie &
-F2 \\ \hline
+\medskip
+\noindent{\small\textbf{Légende.}~%
+\tikz\fill[whybg, draw=whyborder, line width=0.5pt] (0,0) rectangle (0.28,0.14);~fonction principale (FP) \quad
+\tikz\fill[whatbg, draw=whatborder, line width=0.5pt] (0,0) rectangle (0.28,0.14);~fonction secondaire (FS) \quad
+\tikz\fill[defibg, draw=defiborder, line width=0.5pt] (0,0) rectangle (0.28,0.14);~fonction contrainte (FC) \quad
+*~: fonction cœur du \textbf{POC}.}
 
-\cellcolor{fpColor} FP3 &
-Restitution des résultats &
-Fournir aux chercheurs tracés et métriques exploitables en fin de simulation &
-Tracés des potentiels + tableau CSV/JSON (temps, speedup, erreur) à chaque exécution &
-Aucune : les sorties font partie du contrat &
-F0 \\ \hline
-
-\cellcolor{fsColor} FS1 &
-Tailles et topologies acceptées &
-Accepter les connectomes par tailles croissantes et topologies variées &
-De $N = 2$ (validation) à $N \geq 10\,000$ neurones &
-Borne haute fonction de la VRAM disponible &
-F2 \\ \hline
-
-\cellcolor{fsColor} FS2 &
-Extensibilité du modèle &
-Remplacer les équations du modèle neuronal pour simuler d'autres phénomènes, sans réécrire la chaîne de simulation &
-Équations du modèle isolées dans un module dédié, remplaçable indépendamment du moteur de simulation &
-Partielle au POC (seul le modèle \textbf{HH} est implanté, mais ses équations sont découplées) &
-F2 \\ \hline
-
-\cellcolor{fcColor} FC1 &
-Conformité au modèle &
-Respecter le modèle de \textbf{Hodgkin-Huxley} et sa méthode de résolution, imposés par le socle de référence &
-Mêmes équations et même schéma de résolution que le socle fourni &
-Aucune &
-F0 \\ \hline
-
-\cellcolor{fcColor} FC2 &
-Mémoire disponible &
-Tenir dans la VRAM du GPU, connectome stocké au format creux (CSR) &
-Connectome CSR résidant en 32 Go de VRAM ; borne physique, non négociable &
-Aucune &
-F0 \\ \hline
-
-\cellcolor{fcColor} FC3 &
-Temps de travail &
-Tenir le calendrier : études au S7, 100 h de réalisation au S8, évaluations imposées &
-POC livré aux jalons du calendrier &
-Aucune &
-F0 \\ \hline
-
-\cellcolor{fcColor} FC4 &
-Reproductibilité &
-Donner des mesures que d'autres peuvent refaire et comparer &
-Chaque mesure répétée au moins 3 fois, graines fixées, protocole documenté &
-$\pm$ 10 \% entre répétitions &
-F1 \\ \hline
-
-\caption{Tableau de caractérisation des fonctions}
-\end{longtable}
-}
-
-\paragraph{Justification des flexibilités.}
-\begin{itemize}
-    \item \textbf{FP1 -- F1} : la fidélité est le socle de la valeur scientifique du projet ; une erreur relative de $10^{-4}$ reste toutefois techniquement discutable, d'où une flexibilité faible mais non nulle.
-    \item \textbf{FP2 -- F2} : le niveau $\times$10 est prudent au vu de l'état de l'art ($\times$100 à $\times$1000 sur des outils génériques) ; le gain réel dépendra fortement de la topologie et des accès mémoire au connectome, d'où une tolérance large et une flexibilité moyenne.
-    \item \textbf{FP3 -- F0} : des résultats non restitués équivalent à une simulation inutile ; aucune marge.
-    \item \textbf{FS1, FS2 -- F2} : l'adaptation complète à toutes tailles et l'extensibilité généralisée du modèle relèvent de la vision long terme ; le POC peut se contenter d'un sous-ensemble (chaîne, aléatoire, $N$ borné par la \textbf{VRAM}, équations \textbf{HH} découplées).
-    \item \textbf{FC1 à FC3 -- F0} : contraintes imposées par le sujet, le matériel ou le calendrier ; leur violation invalide le projet, pas seulement une performance.
-    \item \textbf{FC4 -- F1} : trois répétitions suffisent au POC ; le protocole pourra être étoffé si les mesures s'avèrent instables.
-\end{itemize}
-
-\chapter{Hiérarchisation des fonctions}
+\chapter{Hiérarchisation et fonctions cœur du POC}
 
 \section{Méthode du tri croisé}
 
-Les neuf fonctions sont comparées deux à deux : pour chaque paire, la fonction la plus importante reçoit un score.
-\begin{itemize}
-    \item \textbf{0} : les deux fonctions sont d'importance égale ;
-    \item \textbf{1} : la fonction est un peu plus importante que l'autre ;
-    \item \textbf{2} : la fonction est plus importante que l'autre ;
-    \item \textbf{3} : la fonction est beaucoup plus importante que l'autre.
-\end{itemize}
-Les scores de chaque fonction sont additionnés : le total, ramené en pourcentage de la somme générale, hiérarchise les fonctions et délimite le périmètre du POC.
+Les fonctions sont comparées deux à deux : chaque case de la matrice indique la fonction la plus importante pour le service rendu au laboratoire, et l'écart d'importance va de \textbf{0} (égalité, aucun point) à \textbf{1} (un peu plus), \textbf{2} (plus) et \textbf{3} (beaucoup plus). 
 
-\section{Matrice du tri croisé}
-
-{\setlength{\tabcolsep}{2pt}\scriptsize
-\begin{tabular}{|p{0.5cm}|p{0.85cm}|p{0.85cm}|p{0.85cm}|p{0.85cm}|p{0.85cm}|p{0.85cm}|p{0.85cm}|p{0.85cm}|p{0.85cm}|}
+\begin{table}[H]
+\centering
+{\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
 \hline
- & \cellcolor{matGray}\textbf{FP1} & \cellcolor{matGray}\textbf{FP2} & \cellcolor{matGray}\textbf{FP3} & \cellcolor{matGray}\textbf{FS1} & \cellcolor{matGray}\textbf{FS2} & \cellcolor{matGray}\textbf{FC1} & \cellcolor{matGray}\textbf{FC2} & \cellcolor{matGray}\textbf{FC3} & \cellcolor{matGray}\textbf{FC4} \\ \hline
-
-\cellcolor{matGray}\textbf{FP1} & --- & FP1 (2) & FP1 (3) & FP1 (3) & FP1 (3) & FP1 (2) & FP1 (3) & FP1 (3) & FP1 (3) \\ \hline
-
-\cellcolor{matGray}\textbf{FP2} & & --- & FP2 (1) & FP2 (3) & FP2 (3) & FC1 (2) & FP2 (2) & FP2 (3) & FP2 (3) \\ \hline
-
-\cellcolor{matGray}\textbf{FP3} & & & --- & FP3 (2) & FP3 (3) & FC1 (2) & FP3 (2) & FP3 (3) & FP3 (3) \\ \hline
-
-\cellcolor{matGray}\textbf{FS1} & & & & --- & FS1 (1) & FC1 (3) & FC2 (2) & FS1 (3) & FS1 (2) \\ \hline
-
-\cellcolor{matGray}\textbf{FS2} & & & & & --- & FC1 (3) & FC2 (2) & FS2 (3) & FS2 (2) \\ \hline
-
-\cellcolor{matGray}\textbf{FC1} & & & & & & --- & FC1 (3) & FC1 (3) & FC1 (3) \\ \hline
-
-\cellcolor{matGray}\textbf{FC2} & & & & & & & --- & FC2 (3) & FC2 (3) \\ \hline
-
-\cellcolor{matGray}\textbf{FC3} & & & & & & & & --- & FC4 (2) \\ \hline
-
-\cellcolor{matGray}\textbf{FC4} & & & & & & & & & --- \\ \hline
+\cellcolor{gray!15} & \cellcolor{whybg}\textbf{FP2} & \cellcolor{whybg}\textbf{FP3} & \cellcolor{whatbg}\textbf{FS1} & \cellcolor{whatbg}\textbf{FS2} & \cellcolor{whatbg}\textbf{FS3} & \cellcolor{defibg}\textbf{FC1} & \cellcolor{defibg}\textbf{FC2} & \cellcolor{defibg}\textbf{FC3} \\ \hline
+\cellcolor{whybg}\textbf{FP1} & \cellcolor{whybg}FP1(1) & \cellcolor{whybg}FP1(2) & \cellcolor{whybg}FP1(2) & \cellcolor{whybg}FP1(3) & \cellcolor{whybg}FP1(2) & \cellcolor{whybg}FP1(1) & \cellcolor{whybg}FP1(1) & \cellcolor{whybg}FP1(2) \\ \hline
+\cellcolor{whybg}\textbf{FP2} & \cellcolor{gray!35} & \cellcolor{whybg}FP2(2) & \cellcolor{whybg}FP2(1) & \cellcolor{whybg}FP2(3) & \cellcolor{whybg}FP2(1) & \cellcolor{gray!10}0 & \cellcolor{whybg}FP2(1) & \cellcolor{whybg}FP2(2) \\ \hline
+\cellcolor{whybg}\textbf{FP3} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!10}0 & \cellcolor{whybg}FP3(2) & \cellcolor{gray!10}0 & \cellcolor{defibg}FC1(1) & \cellcolor{gray!10}0 & \cellcolor{whybg}FP3(1) \\ \hline
+\cellcolor{whatbg}\textbf{FS1} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{whatbg}FS1(2) & \cellcolor{whatbg}FS1(1) & \cellcolor{defibg}FC1(1) & \cellcolor{gray!10}0 & \cellcolor{whatbg}FS1(2) \\ \hline
+\cellcolor{whatbg}\textbf{FS2} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{whatbg}FS3(1) & \cellcolor{defibg}FC1(3) & \cellcolor{defibg}FC2(2) & \cellcolor{defibg}FC3(1) \\ \hline
+\cellcolor{whatbg}\textbf{FS3} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{defibg}FC1(1) & \cellcolor{defibg}FC2(1) & \cellcolor{whatbg}FS3(1) \\ \hline
+\cellcolor{defibg}\textbf{FC1} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{defibg}FC1(1) & \cellcolor{defibg}FC1(2) \\ \hline
+\cellcolor{defibg}\textbf{FC2} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{defibg}FC2(1) \\ \hline
+\cellcolor{defibg}\textbf{FC3} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} & \cellcolor{gray!35} \\ \hline
 \end{tabular}}
+\caption{Matrice du tri croisé (36 comparaisons).}
+\label{tab:tri}
+\end{table}
 
-\medskip
+\section{Résultats}
 
-Dans chaque case, la fonction retenue comme la plus importante est notée avec son score face à l'autre fonction comparée.
-
-\section{Classement des fonctions}
-
-Les scores sont additionnés pour chaque fonction. Le tableau ci-dessous donne le classement, le poids relatif et le poids cumulé.
-
-\begin{tabular}{|p{1.2cm}|p{6.5cm}|p{1.6cm}|p{1.8cm}|p{2.2cm}|}
+\begin{table}[H]
+\centering
+{\small
+\begin{tabular}{|c|c|c|p{7.6cm}|}
 \hline
-\rowcolor{matGray}
-\textbf{Code} & \textbf{Fonction} & \textbf{Points} & \textbf{Poids} & \textbf{Cumul} \\ \hline
-\cellcolor{pocColor} FP1 & Simuler les réseaux \textbf{HH} couplés & 22 & 23,9 \% & 23,9 \% \\ \hline
-\cellcolor{pocColor} FC1 & Respecter le modèle \textbf{HH} et sa résolution & 19 & 20,7 \% & 44,6 \% \\ \hline
-\cellcolor{pocColor} FP2 & Accélérer sur \textbf{GPU} et mesurer le speedup & 15 & 16,3 \% & 60,9 \% \\ \hline
-\cellcolor{pocColor} FP3 & Restituer les résultats & 13 & 14,1 \% & 75,0 \% \\ \hline
-FC2 & Fonctionner sur le matériel disponible & 10 & 10,9 \% & 85,9 \% \\ \hline
-FS1 & S'adapter aux tailles et topologies & 6 & 6,5 \% & 92,4 \% \\ \hline
-FS2 & Adapter les équations du modèle & 5 & 5,4 \% & 97,8 \% \\ \hline
-FC4 & Garantir des mesures reproductibles & 2 & 2,2 \% & 100,0 \% \\ \hline
-FC3 & Respecter le calendrier & 0 & 0,0 \% & 100,0 \% \\ \hline
-\textbf{Total} & & \textbf{92} & \textbf{100 \%} & \\ \hline
-\end{tabular}
+\rowcolor{gray!15} \textbf{Fonction} & \textbf{Points} & \textbf{Poids} & \textbf{Intitulé} \\ \hline
+\textbf{FP1} & \cellcolor{resVert} 14 & \cellcolor{resVert} 29,2\,\% & Simuler des réseaux \textbf{Hodgkin-Huxley} couplés par \textbf{synapses} \\ \hline
+\textbf{FP2} & \cellcolor{resVert} 10 & \cellcolor{resVert} 20,8\,\% & Accélérer la simulation sur \textbf{GPU} \\ \hline
+\textbf{FC1} & \cellcolor{resJaune} 9 & \cellcolor{resJaune} 18,8\,\% & Respecter le modèle et le schéma d'intégration du socle \\ \hline
+\textbf{FS1} & \cellcolor{resJaune} 5 & \cellcolor{resJaune} 10,4\,\% & S'adapter à différentes tailles et topologies de connectomes \\ \hline
+\textbf{FC2} & \cellcolor{resOrange} 4 & \cellcolor{resOrange} 8,3\,\% & Fonctionner sur le matériel cible (\textbf{GPU}) \\ \hline
+\textbf{FP3} & \cellcolor{resOrange} 3 & \cellcolor{resOrange} 6,3\,\% & Restituer les résultats aux chercheurs \\ \hline
+\textbf{FS3} & \cellcolor{resRougeC} 2 & \cellcolor{resRougeC} 4,2\,\% & Garantir des mesures reproductibles \\ \hline
+\textbf{FC3} & \cellcolor{resRougeC} 1 & \cellcolor{resRougeC} 2,0\,\% & Respecter le temps et le calendrier du projet \\ \hline
+\textbf{FS2} & \cellcolor{resRouge} 0 & \cellcolor{resRouge} 0,0\,\% & Adapter les équations sans réécrire la chaîne de simulation \\ \hline
+\textbf{Total} & 48 & 100\,\% & \\ \hline
+\end{tabular}}
+\caption{Hiérarchisation des fonctions, par poids décroissant ; la couleur va du vert (poids fort) au rouge (poids nul).}
+\label{tab:prio}
+\end{table}
 
-\medskip
-
-Deux constats guident la suite du projet :
-\begin{itemize}
-    \item \textbf{FP1 domine} le classement : sans simulation du réseau couplé, il n'y a rien à accélérer ni à restituer.
-    \item \textbf{FC1 arrive en seconde position}, devant FP2 : un speedup acheté au prix d'un modèle modifié ne vaut rien. Ce résultat tranche une question ouverte depuis le L2 : le respect du modèle prime sur la vitesse. Le projet ne cherche pas à accélérer \emph{à tout prix}, mais à mesurer un gain \emph{sans toucher aux équations ni à la méthode de résolution}.
-    \item \textbf{FP2 et FP3 complètent le podium} : le cœur métier du POC est bien la mesure du gain \textbf{GPU} et sa restitution au laboratoire.
-    \item \textbf{FC3 ferme la marche} : le calendrier ne rend aucun service au laboratoire ; il ne fait qu'encadrer le travail. Il n'en reste pas moins une contrainte dure (flexibilité F0) : un projet hors jalons est un projet non évalué, pas un projet plus léger.
-\end{itemize}
-
-\section{Fonctions retenues pour le POC}
-
-Le POC du second semestre se concentre sur les quatre fonctions de tête, qui pèsent \textbf{75,0 \%} du poids total : \textbf{FP1} (simuler), \textbf{FC1} (respect du modèle et de sa résolution), \textbf{FP2} (accélérer et mesurer), \textbf{FP3} (restituer). Elles forment un périmètre cohérent : la simulation fidèle du socle, son portage \textbf{GPU} et le benchmark comparatif documenté.
-
-Les autres fonctions ne disparaissent pas : \textbf{FC2} et \textbf{FC4} bornent d'ores et déjà la conception (matériel, protocole de mesure) ; \textbf{FS1} sera réalisée en partie (tailles croissantes jusqu'à la borne \textbf{VRAM}) ; \textbf{FS2} sera abordée à minima (équations du modèle isolées dans un module remplaçable). L'environnement générique complet de la vision L2 reste la cible long terme, au-delà du POC.
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[x=0.6cm, y=0.5cm]
+    \foreach \f/\p/\c [count=\i] in {FP1/14/1, FP2/10/1, FC1/9/1, FS1/5/1, FC2/4/1, FP3/3/0, FS3/2/0, FC3/1/0, FS2/0/0} {
+        \pgfmathsetmacro{\yy}{-\i}
+        \node[anchor=east, font=\footnotesize\bfseries, text=cardink] at (-0.3,\yy) {\f};
+        \ifnum\c=1
+            \fill[bmMid, draw=pocborder, line width=0.8pt] (0,\yy-0.32) rectangle (\p,\yy+0.32);
+        \else
+            \fill[gray!25, draw=gray!60, line width=0.8pt] (0,\yy-0.32) rectangle (\p,\yy+0.32);
+        \fi
+        \node[anchor=west, font=\scriptsize, text=cardink] at (\p+0.2,\yy) {\p~pts};
+    }
+    \draw[cardline, line width=0.8pt] (0,-0.4) -- (0,-9.6);
+    \draw[defiborder, dashed, line width=1.1pt] (-1.6,-5.5) -- (19,-5.5);
+    \node[anchor=south east, font=\scriptsize\itshape, text=defiborder] at (19,-5.45) {seuil du POC};
+\end{tikzpicture}
+\caption{Poids des fonctions issus du tri croisé.}
+\label{fig:barres}
+\end{figure}
 
 \chapter{Conclusion et perspectives}
 
-L'analyse fonctionnelle a fait passer le projet du besoin exprimé à neuf fonctions formelles : trois fonctions principales (simuler, accélérer et mesurer, restituer), deux fonctions de service (adaptation aux connectomes, extensibilité du modèle) et quatre contraintes (respect du modèle et de sa résolution, matériel, calendrier, reproductibilité). La caractérisation a fixé pour chacune un critère, un niveau, une tolérance et une flexibilité ; le tri croisé les a hiérarchisées.
+Ce livrable fait le point sur ce que le système doit faire pour répondre au besoin du laboratoire de M.~Pirog : simuler de grands réseaux de neurones dans un temps raisonnable, et savoir si le \textbf{GPU} est vraiment plus rapide que le \textbf{CPU}. Le besoin a d'abord été rappelé avec la bête à cornes, puis traduit en fonctions principales, secondaires et de contrainte, reliées aux éléments extérieurs dans le diagramme pieuvre.
 
-Le résultat principal est un périmètre de POC net : \textbf{FP1, FC1, FP2 et FP3}, soit 75,0 \% du poids. Autrement dit : simuler fidèlement le réseau de \textbf{Hodgkin-Huxley} fourni, le porter sur \textbf{RTX~5090} en \textbf{CUDA}, mesurer le speedup face à la référence \textbf{CPU} sans dérive numérique, et rendre les résultats exploitables au laboratoire. La hiérarchie a aussi tranché une question de méthode : le respect du modèle (FC1) pèse plus lourd que la vitesse (FP2), ce qui guidera les arbitrages techniques à venir.
+Chaque fonction a ensuite été décrite précisément : ce qui est attendu (le critère), jusqu'où (le niveau), et la marge de négociation (la flexibilité). Ce travail fixe des objectifs clairs et chiffrés pour la suite du projet, comme la taille des réseaux visés ou le gain de temps attendu.
 
-Les prochaines étapes :
-\begin{enumerate}
-    \item \textbf{décliner les fonctions prioritaires en solutions techniques} dans le livrable L5 (FAST et schéma synoptique) : la FP1 en pipeline de simulation, la FP2 en stratégie de parallélisation par neurone et d'accès au connectome creux ;
-    \item \textbf{vérifier la cohérence des niveaux visés} dès les premiers développements du S8 : le speedup $\geq \times$10 de FP2 et l'erreur $\leq 10^{-4}$ de FP1 serviront de critères de réussite mesurables ;
-    \item \textbf{maintenir le tableau de caractérisation à jour} : si le protocole de mesure ou le matériel changent, les niveaux et tolérances seront révisés, et la présente note mise à jour en conséquence.
-\end{enumerate}
-
-\appendix
-\chapter{Sources du tableau de caractérisation}
-
-{\setlength{\tabcolsep}{4pt}
-\begin{tabular}{|p{1.3cm}|p{12.6cm}|}
-\hline
-\rowcolor{matGray}
-\textbf{Fonction} & \textbf{Source du niveau et de la tolérance} \\ \hline
-FP1 & Reproduction du socle fourni : le solveur \textbf{CPU} de référence est la vérité terrain ; l'erreur relative de $10^{-4}$ correspond à l'ordre de grandeur des écarts d'intégration acceptés par les solveurs d'\textbf{EDO} à pas fixe [1, 2]. \\ \hline
-FP2 & État de l'art L3 : GeNN annonce $\times$200 face à un cœur \textbf{CPU} [3], Brian2CUDA $\times$1000 face à Brian [4], le solveur \textbf{Julia} $\times$20 à $\times$100 [5], SimHH $\times$150 face à un \textbf{CPU} mono-fil [6]. Le niveau $\geq \times$10, prudent, laisse une tolérance de $\pm$50 \% selon la topologie : les accès irréguliers au connectome creux plafonnent le parallélisme [7]. \\ \hline
-FP3 & Choix d'équipe : CSV et JSON sont des formats lisibles partout et convertibles rapidement entre eux ; cohérent avec le benchmark \textbf{CPU} existant du socle [1]. \\ \hline
-FS1 & Tailles de validation du benchmark \textbf{CPU} existant ($N \in \{2, 4, 8, 16\}$) pour la borne basse ; vision L2 (« plusieurs milliers à dizaines de milliers de neurones ») pour la borne haute ; la \textbf{VRAM} de la \textbf{RTX~5090} (32~Go) fixe la limite physique [8]. \\ \hline
-FS2 & Vision L2 : environnement générique où les équations du modèle peuvent être remplacées pour simuler d'autres phénomènes. Réduction au POC : équations du modèle \textbf{HH} isolées dans un module dédié, remplaçable. \\ \hline
-FC1 & Socle fourni : le modèle de \textbf{Hodgkin-Huxley} et sa méthode de résolution sont imposés par le laboratoire. Note de clarification L2 : « pas d'accélération au prix d'une dérive numérique par rapport au modèle de référence ». \\ \hline
-FC2 & Fiche technique de la \textbf{RTX~5090} : 32~Go de \textbf{VRAM} [8] ; stockage CSR du connectome, format standard pour les matrices creuses [7]. \\ \hline
-FC3 & Calendrier du sujet : 32~h encadrées au S7, 100~h de réalisation au S8, évaluations des 08/10 et 22/10. \\ \hline
-FC4 & Bonne pratique de benchmarking : répéter les mesures pour estimer la variance ; graines fixées pour régénérer les connectomes aléatoires à l'identique. \\ \hline
-\end{tabular}}
-
-\medskip
-
-Références des sources citées :
-\begin{enumerate}
-    \item Socle de code fourni (modèle de \textbf{Hodgkin-Huxley}, synapses, solveur \textbf{CPU} de référence) et benchmark \textbf{CPU} existant du dépôt du projet.
-    \item Benchmark comparatif du livrable L3 (fiches d'analyse des articles).
-    \item E.~Yavuz, J.~Turner, T.~Nowotny, \og GeNN : a code generation framework for accelerated brain simulations \fg, \emph{Scientific Reports}, 2016.
-    \item D.~Alevi et al., \og Brian2CUDA : Flexible and Efficient Simulation of Spiking Neural Network Models on GPUs \fg, \emph{Frontiers in Neuroinformatics}, 2022.
-    \item U.~Utkarsh et al., \og Automated Translation and Accelerated Solving of Differential Equations on Multiple GPU Platforms \fg, \emph{CMAME}, 2024.
-    \item M.~C.~W.~Engelen, J.-H.~L.~F.~Betting, C.~Strydis, \og SimHH : A Versatile, Multi-GPU Simulator for Extended Hodgkin-Huxley Networks \fg, \emph{IEEE Access}, 2025.
-    \item N.~Bell, M.~Garland, \og Implementing sparse matrix-vector multiplication on throughput-oriented processors \fg, \emph{SC'09}, ACM, 2009.
-    \item Fiche technique \textbf{NVIDIA GeForce RTX~5090}, TechPowerUp.
-\end{enumerate}
-
-\begin{thebibliography}{9}
-\addcontentsline{toc}{chapter}{Bibliographie}
-
-\bibitem{nickolls2008} J.~Nickolls, I.~Buck, M.~Garland, K.~Skadron, \og Scalable Parallel Programming with CUDA \fg, \emph{ACM Queue}, vol.~6, n\textsuperscript{o}~2, p.~24--32, mars 2008. \href{https://doi.org/10.1145/1365490.1365500}{DOI : 10.1145/1365490.1365500}.
-
-\bibitem{yavuz2016} E.~Yavuz, J.~Turner, T.~Nowotny, \og GeNN : a code generation framework for accelerated brain simulations \fg, \emph{Scientific Reports}, vol.~6, article 18854, 2016. \href{https://doi.org/10.1038/srep18854}{DOI : 10.1038/srep18854}.
-
-\bibitem{alevi2022} D.~Alevi, M.~Stimberg, H.~Sprekeler, K.~Obermayer, M.~Augustin, \og Brian2CUDA : Flexible and Efficient Simulation of Spiking Neural Network Models on GPUs \fg, \emph{Frontiers in Neuroinformatics}, vol.~16, article 883700, 2022. \href{https://doi.org/10.3389/fninf.2022.883700}{DOI : 10.3389/fninf.2022.883700}.
-
-\bibitem{utkarsh2024} U.~Utkarsh, V.~Churavy, Y.~Ma, T.~Besard, et al., \og Automated Translation and Accelerated Solving of Differential Equations on Multiple GPU Platforms \fg, \emph{Computer Methods in Applied Mechanics and Engineering}, vol.~419, 2024. \href{https://doi.org/10.1016/j.cma.2023.116591}{DOI : 10.1016/j.cma.2023.116591}.
-
-\bibitem{engelen2025} M.~C.~W.~Engelen, J.-H.~L.~F.~Betting, C.~Strydis, \og SimHH : A Versatile, Multi-GPU Simulator for Extended Hodgkin-Huxley Networks \fg, \emph{IEEE Access}, vol.~13, 2025. \href{https://doi.org/10.1109/ACCESS.2025.3550444}{DOI : 10.1109/ACCESS.2025.3550444}.
-
-\bibitem{bell2009} N.~Bell, M.~Garland, \og Implementing sparse matrix-vector multiplication on throughput-oriented processors \fg, \emph{Proceedings of the Conference on High Performance Computing, Networking, Storage and Analysis (SC'09)}, ACM, 2009. \href{https://doi.org/10.1145/1654059.1654078}{DOI : 10.1145/1654059.1654078}.
-
-\bibitem{techpowerup} \og NVIDIA GeForce RTX 5090 \fg, fiche technique, TechPowerUp. \href{https://www.techpowerup.com/gpu-specs/geforce-rtx-5090.c4216}{www.techpowerup.com/gpu-specs/geforce-rtx-5090.c4216}.
-
-\end{thebibliography}
+Enfin, le tri croisé a permis de classer les fonctions par importance. Les cinq premières -- FP1, FP2, FC1, FS1 et FC2 -- forment les fonctions cœur du \textbf{POC} : elles totalisent \textbf{87,5\,\%} des points, et ce sont elles qui permettront de répondre à la question du projet. Les autres fonctions ne sont pas abandonnées : elles seront traitées plus tard, si le temps du semestre 8 le permet.
 
 \end{document}
