@@ -1,0 +1,300 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\setlength{\headheight}{13pt}
+\usepackage{lastpage}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{color}
+\usepackage[table]{xcolor}
+\usepackage{soul}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+\usepackage{tikz}
+\usetikzlibrary{positioning, shapes.geometric, arrows.meta, calc, fit, backgrounds, shadows}
+\usepackage{rotating}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{float}
+
+\newcommand{\DocName}{OPTIMISATION DE MODELES NEURONAUX A OSCILLATEURS COUPLÉS - LIVRABLE 5 : FAST ET SCHÉMA SYNOPTIQUE}
+\newcommand{\DocAuthors}{\bsc{Da Silva} Tristan - \bsc{Battaglia} Charles-Antoine \\ \bsc{Botté-Magalhaes} Jules - \bsc{Gauthier} Keanu - \bsc{Fraysse} Ianis}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{addrred}{rgb}{0.93,0.43,0.43}
+\definecolor{commentgray}{rgb}{0.45,0.45,0.45}
+
+% Palette des livrables précédents
+\definecolor{hubbg}{RGB}{23,48,77}
+\definecolor{hubrule}{RGB}{150,178,206}
+\definecolor{cardink}{RGB}{33,41,54}
+\definecolor{cardline}{RGB}{160,172,186}
+\definecolor{whyborder}{RGB}{31,92,139}
+\definecolor{whybg}{RGB}{243,248,252}
+\definecolor{whatborder}{RGB}{34,116,80}
+\definecolor{whatbg}{RGB}{243,250,246}
+\definecolor{defiborder}{RGB}{166,54,45}
+\definecolor{defibg}{RGB}{253,245,244}
+
+% Palette du benchmark (L3), reprise pour les solutions du POC
+\definecolor{bmMid}{HTML}{FFE699}
+\definecolor{pocborder}{RGB}{191,144,0}
+
+% Pas de césure dans le texte des boîtes
+\tikzset{every node/.append style={execute at begin node={\hyphenpenalty=10000\exhyphenpenalty=10000}}}
+
+% Styles communs des diagrammes FAST
+\tikzset{
+    fast/.style={
+        >={Stealth[length=2.2mm,width=1.8mm]},
+        fct/.style={rectangle, rounded corners=4pt, draw=whyborder, fill=whybg, line width=1.1pt,
+            align=center, font=\footnotesize\bfseries, text=cardink, inner sep=6pt,
+            text width=3.3cm, minimum height=2.2cm},
+        sous/.style={rectangle, rounded corners=4pt, draw=cardline, fill=gray!8, line width=0.9pt,
+            align=center, font=\footnotesize, text=cardink, inner sep=6pt,
+            text width=4.5cm, minimum height=1.35cm},
+        sol/.style={rectangle, rounded corners=4pt, draw=pocborder, fill=bmMid, line width=0.9pt,
+            align=center, font=\footnotesize, text=cardink, inner sep=6pt,
+            text width=4.9cm, minimum height=1.35cm},
+        cmt/.style={font=\scriptsize\itshape, text=cardink, above=1pt},
+        tronc/.style={line width=1pt, draw=cardline, line cap=round},
+        lien/.style={->, line width=1pt, draw=cardline},
+        real/.style={->, line width=0.9pt, draw=pocborder, dotted},
+        noeud/.style={circle, fill=cardline, inner sep=0pt, minimum size=4pt}
+    }
+}
+
+\lstset{frame=tb,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=none,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{commentgray},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3,
+   }
+
+\lstset{breaklines=true}
+
+\geometry{a4paper, margin=1in}
+
+% Suppression de l'affichage du mot "Chapitre"
+\titleformat{\chapter}[display]
+    {\normalfont\bfseries\LARGE}
+    {}
+    {0pt}
+    {}
+
+\definecolor{Light}{gray}{.90}
+\sethlcolor{Light}
+
+\let\OldTexttt\texttt
+\renewcommand{\texttt}[1]{\OldTexttt{\hl{#1}}}
+
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\thesection}{\thechapter.\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+
+\fancyhf{}
+\fancyhead[L]{\DocName}
+\fancyfoot[L]{\DocAuthors}
+\fancyfoot[R]{\thepage\ / \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0 pt}
+\renewcommand{\footrulewidth}{0.2pt}
+\pagestyle{fancy}
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[R]{\thepage\ / \pageref{LastPage}}
+    \fancyfoot[L]{\DocAuthors}
+    \fancyhead[L]{\DocName}
+}
+
+\graphicspath{ {./img} }
+
+\title{\DocName}
+\author{\DocAuthors}
+\date{\textbf{JUNIA - ISEN - AP4} \url{https://github.com/CharlesBta/Modele-Neuronaux-RD.git}}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\chapter{Diagrammes FAST}
+
+Le diagramme \textbf{FAST} se lit de gauche à droite avec la question \og \emph{comment} ? \fg{} ; dans l'autre sens, la même chaîne répond à \og \emph{pourquoi} ? \fg. Chaque sous-fonction est reliée, par une flèche pointillée, à la solution technique (en jaune) qui la réalise. Dans tout le document, $W$ désigne la matrice de connexions du réseau.
+
+\noindent{\small\textbf{Légende.}~%
+\tikz\fill[whybg, draw=whyborder, line width=0.5pt] (0,0) rectangle (0.26,0.13);~fonction \quad
+\tikz\fill[gray!8, draw=cardline, line width=0.5pt] (0,0) rectangle (0.26,0.13);~sous-fonction \quad
+\tikz\fill[bmMid, draw=pocborder, line width=0.5pt] (0,0) rectangle (0.26,0.13);~solution technique.}
+
+
+\begin{figure}[H]
+\centering
+\scalebox{0.75}{%
+\begin{tikzpicture}[fast]
+% Colonnes : fonction (x=0), bus vertical (x=2.4), sous-fonctions (x=6.6), solutions (x=12.6)
+\def\xbus{2.4}
+\node[fct] (FP1) at (0,0) {FP1\\[2pt]Simuler des réseaux\\Hodgkin-Huxley\\couplés par synapses};
+
+\node[sous] (S1) at (6.6, 3.6) {Décrire le réseau à simuler};
+\node[sous] (S2) at (6.6, 1.2) {Faire communiquer les neurones entre eux};
+\node[sous] (S3) at (6.6,-1.2) {Faire évoluer le potentiel de chaque neurone};
+\node[sous] (S4) at (6.6,-3.6) {Enchaîner les pas de temps jusqu'à la durée};
+
+\node[sol] (T1) at (12.6, 3.6) {Générateur de connectome :\\taille $N$, chaîne,\\tout-à-tout, aléatoire (FS1)\\(\textit{conf.json} pour description du réseau\\Python pour générer la matrice $W$)};
+\node[sol] (T2) at (12.6, 1.2) {Chaque neurone intègre\\les messages de ses voisins, selon $W$};
+\node[sol] (T3) at (12.6,-1.2) {Résolution Hodgkin-Huxley,\\équations du socle (FC1)};
+\node[sol] (T4) at (12.6,-3.6) {Boucle de simulation,\\pas de temps du socle};
+
+\node[font=\scriptsize\itshape, text=cardink] at (6.6,5.0) {Comment ? $\rightarrow$ \quad $\leftarrow$ Pourquoi ?};
+
+% Arborescence orthogonale : tronc commun puis une branche par sous-fonction
+\draw[tronc] (FP1.east) -- (\xbus,0);
+\draw[tronc] (\xbus,3.6) -- (\xbus,-3.6);
+\node[noeud] at (\xbus,0) {};
+\foreach \i in {1,...,4}{
+    \draw[lien] (\xbus,0 |- S\i.west) -- node[cmt]{Comment ?} (S\i.west);
+    \draw[real] (S\i.east) -- (T\i.west);
+}
+\end{tikzpicture}}%
+\caption{FAST de FP1 : le réseau est décrit par le générateur de connectome (FS1), puis simulé pas à pas -- communication entre les neurones, mise à jour Hodgkin-Huxley (FC1) -- jusqu'à la durée choisie.}
+\label{fig:fast-fp1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\scalebox{0.75}{%
+\begin{tikzpicture}[fast]
+\def\xbus{2.4}
+\node[fct] (FP2) at (0,0) {FP2\\[2pt]Accélérer la\\simulation\\sur GPU};
+
+\node[sous] (S1) at (6.6, 2.4) {Répartir les neurones sur les c\oe urs};
+\node[sous] (S2) at (6.6, 0)   {Garder les données sur la carte};
+\node[sous] (S3) at (6.6,-2.4) {Piloter la carte sans la ralentir};
+
+\node[sol] (T1) at (12.6, 2.4) {Un fil de calcul par neurone};
+\node[sol] (T2) at (12.6, 0)   {VRAM résidente,\\transferts début et fin (FC2)};
+\node[sol] (T3) at (12.6,-2.4) {Orchestrateur CPU (Python) :\\lance les calculs à chaque pas};
+
+\node[font=\scriptsize\itshape, text=cardink] at (6.6,3.8) {Comment ? $\rightarrow$ \quad $\leftarrow$ Pourquoi ?};
+
+\draw[tronc] (FP2.east) -- (\xbus,0);
+\draw[tronc] (\xbus,2.4) -- (\xbus,-2.4);
+\node[noeud] at (\xbus,0) {};
+\foreach \i in {1,...,3}{
+    \draw[lien] (\xbus,0 |- S\i.west) -- node[cmt]{Comment ?} (S\i.west);
+    \draw[real] (S\i.east) -- (T\i.west);
+}
+\end{tikzpicture}}%
+\caption{FAST de FP2 : les neurones sont répartis sur les c\oe urs, les données restent en VRAM (FC2) et l'orchestrateur lance les calculs à chaque pas.}
+\label{fig:fast-fp2}
+\end{figure}
+
+\chapter{Schéma synoptique}
+
+\begin{figure}[H]
+\centering
+\scalebox{0.74}{%
+\begin{tikzpicture}[
+    >={Stealth[length=2.4mm,width=1.9mm]},
+    gbloc/.style={rectangle, rounded corners=5pt, draw=cardline, fill=gray!8, line width=0.9pt,
+        align=center, font=\footnotesize\bfseries, text=cardink, inner sep=6pt},
+    vrbox/.style={rectangle, rounded corners=5pt, draw=whyborder, fill=whybg, line width=1.1pt,
+        align=center, font=\footnotesize\bfseries, text=cardink, inner sep=6pt},
+    ent/.style={rectangle, rounded corners=5pt, line width=1pt, align=center,
+        font=\footnotesize\bfseries, text=white, inner sep=6pt},
+    flux/.style={->, line width=1.1pt, draw=cardline},
+    io/.style={<->, line width=1pt, draw=cardline},
+    cmd/.style={->, line width=1.1pt, draw=defiborder, dashed},
+    flab/.style={font=\scriptsize, text=cardink, fill=white, inner sep=1.5pt, rounded corners=2pt}
+]
+% Trois colonnes alignées : gauche (x=-5), centre (x=0), droite (x=5)
+% --- Rangée du haut -------------------------------------------------------
+\node[ent, fill=hubbg, text width=3.6cm, minimum height=1.5cm] (CONF) at (-5,12.0)
+    {Configuration\\[-1pt]{\scriptsize modèle, $N$, topologie,\\$dt$, durée, graine}};
+
+\node[gbloc, text width=3.6cm, minimum height=1.5cm] (GEN) at (0,12.0)
+    {Générateur de connectome\\[-1pt]{\scriptsize matrice $N \times N$}};
+
+\node[gbloc, text width=3.6cm, minimum height=1.5cm] (REF) at (5,12.0)
+    {Référence CPU\\[-1pt]{\scriptsize et temps CPU}};
+
+% --- Milieu : hôte CPU ---------------------------------------------------
+\node[gbloc, text width=4.6cm] (ORCH) at (-5,7.8)
+    {Orchestrateur de simulation\\[-1pt]{\scriptsize hôte CPU, Python\\-- charge la config et le connectome\\-- lance les calculs\\-- récupère les sorties}};
+
+\node[gbloc, text width=4.6cm] (VALID) at (5,7.3)
+    {Validation et mesure\\[-1pt]{\scriptsize -- écart sur $V(t)$\\-- speedup $= t_{CPU} / t_{GPU}$}};
+
+\node[gbloc, text width=4.6cm] (RES) at (5,3.9)
+    {Restitution\\[-1pt]{\scriptsize -- fichiers CSV / NumPy, tracés\\-- courbes de temps et speedup}};
+
+% --- Zone GPU --------------------------------------------------------------
+\node[vrbox, text width=4.4cm, minimum height=5.4cm] (VRAM) at (-5,-1.6)
+    {Mémoire VRAM (résidente)\\[-1pt]{\scriptsize -- états des neurones $V, m, h, n$\\-- connectome dense ou CSR\\-- courants et sorties}};
+
+\node[gbloc, text width=4.4cm, minimum height=1.5cm] (N1) at (4.4,0.1)
+    {Courants synaptiques\\[-1pt]{\scriptsize chaque neurone additionne\\ses entrées, selon le connectome}};
+
+\node[gbloc, text width=4.4cm, minimum height=1.5cm] (N2) at (4.4,-3.3)
+    {Mise à jour des neurones\\[-1pt]{\scriptsize Hodgkin-Huxley, un fil par neurone}};
+
+\node[font=\footnotesize\bfseries, text=hubbg] (GPUT) at (0,1.8)
+    {GPU NVIDIA \textbf{RTX 5090} --- 32~Go de \textbf{VRAM}};
+
+\begin{scope}[on background layer]
+\node[rectangle, rounded corners=8pt, draw=hubbg, fill=hubrule!18, line width=1.2pt,
+      inner xsep=0.5cm, inner ysep=0.35cm, fit=(VRAM)(N1)(N2)(GPUT)] (GPUB) {};
+\end{scope}
+
+% --- Encadrement Epreuvage : reference CPU + validation ---------------------
+\begin{scope}[on background layer]
+\node[rectangle, rounded corners=8pt, dashed, draw=cardline, line width=1.1pt,
+      inner xsep=0.25cm, inner ysep=0.6cm, fit=(REF)(VALID)] (EPR) {};
+\end{scope}
+\node[anchor=south, font=\scriptsize\bfseries, text=cardink, fill=white, inner sep=2pt]
+      at (EPR.north) {Epreuvage};
+
+% --- Flux (tous orthogonaux, aucun croisement) ----------------------------
+\draw[flux] (CONF.south) -- node[flab]{configuration} (ORCH.north);
+\draw[flux] (GEN.south) |- node[flab, pos=0.3]{matrice $W$} ([yshift=5mm]ORCH.east);
+\draw[flux] (REF.south) -- node[flab]{sorties et temps CPU} (VALID.north);
+\draw[flux, rounded corners=6pt] (ORCH.east) -- (-1.5,7.8) -- (-1.5,6.35) -- (5,6.35)
+    -- node[flab, pos=0.5]{sorties et temps GPU} (RES.north);
+\draw[cmd] (ORCH.south) -- node[flab, text=defiborder, pos=0.3]{lancement des calculs} (ORCH.south |- GPUB.north);
+\draw[flux] (GPUB.north -| -7.0,0) -- node[flab, pos=0.38]{retour des sorties} (ORCH.south -| -7.0,0);
+
+\draw[io] (VRAM.east |- N1.west) -- node[flab]{lit / écrit} (N1.west);
+\draw[io] (VRAM.east |- N2.west) -- node[flab]{lit / écrit} (N2.west);
+\draw[flux] (N1.south) -- node[flab]{pas suivant} (N2.north);
+
+% --- Légende --------------------------------------------------------------
+\node[draw=cardline, rounded corners=3pt, fill=white, align=left, font=\scriptsize,
+      inner sep=4pt, below=0.5cm of GPUB] {%
+    \tikz\draw[flux] (0,0)--(0.55,0); \ flux d'information \quad
+    \tikz\draw[cmd] (0,0)--(0.55,0); \ commande \quad
+    \tikz\fill[whybg, draw=whyborder, line width=0.5pt] (0,0) rectangle (0.28,0.16); \ données gardées sur la carte};
+\end{tikzpicture}}%
+\caption{Schéma synoptique du POC : l'orchestrateur sur CPU pilote la carte GPU ; la référence CPU et les sorties GPU sont comparées puis restituées.}
+\label{fig:syno}
+\end{figure}
+
+L'orchestrateur, sur le \textbf{CPU} hôte, charge la configuration et le connectome, lance les calculs à chaque pas et récupère les sorties ; pendant ce temps, toute la simulation vit dans la \textbf{VRAM} de la carte, sans transfert en cours de calcul. Les fonctions cœur se repèrent bloc par bloc : FP1 dans les deux calculs de la carte (courants synaptiques et \textbf{Hodgkin-Huxley}), FP2 dans ces calculs et la mesure du \textbf{speedup}, FC1 dans la validation, FS1 dans le générateur et le stockage dense ou \textbf{CSR}, FC2 dans la carte visée (\textbf{RTX~5090}, 32~Go de \textbf{VRAM}).
+
+\end{document}
