@@ -1,0 +1,329 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\setlength{\headheight}{13pt}
+\usepackage{lastpage}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{color}
+\usepackage[table]{xcolor}
+\usepackage{soul}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+\usepackage{tikz}
+\usetikzlibrary{positioning, shapes.geometric, arrows.meta, calc, fit, backgrounds, shadows}
+\usepackage{rotating}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{float}
+
+\newcommand{\DocName}{OPTIMISATION DE MODELES NEURONAUX A OSCILLATEURS COUPLÉS - RAPPORT FINAL}
+\newcommand{\DocAuthors}{\bsc{Da Silva} Tristan - \bsc{Battaglia} Charles-Antoine \\ \bsc{Botté-Magalhaes} Jules - \bsc{Gauthier} Keanu - \bsc{Fraysse} Ianis}
+
+% ===== Couleurs communes =====
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+\definecolor{addrred}{rgb}{0.93,0.43,0.43}
+\definecolor{commentgray}{rgb}{0.45,0.45,0.45}
+
+% Palette du schéma conceptuel (L1)
+\definecolor{hubbg}{RGB}{23,48,77}
+\definecolor{hubborder}{RGB}{23,48,77}
+\definecolor{hubrule}{RGB}{150,178,206}
+\definecolor{cardink}{RGB}{33,41,54}
+\definecolor{cardline}{RGB}{160,172,186}
+\definecolor{whyborder}{RGB}{31,92,139}
+\definecolor{whybg}{RGB}{243,248,252}
+\definecolor{whatborder}{RGB}{34,116,80}
+\definecolor{whatbg}{RGB}{243,250,246}
+\definecolor{howborder}{RGB}{181,84,39}
+\definecolor{howbg}{RGB}{253,247,243}
+\definecolor{outborder}{RGB}{104,72,140}
+\definecolor{outbg}{RGB}{249,246,253}
+\definecolor{defiborder}{RGB}{166,54,45}
+\definecolor{defibg}{RGB}{253,245,244}
+\definecolor{whoborder}{RGB}{71,85,105}
+\definecolor{whobg}{RGB}{246,248,250}
+
+% Palette de la note de clarification (L2)
+\definecolor{inborder}{RGB}{34,116,80}
+\definecolor{inbg}{RGB}{243,250,246}
+\definecolor{outborder2}{RGB}{166,54,45}
+\definecolor{outbg2}{RGB}{253,245,244}
+
+% Palette du benchmark (L3)
+\definecolor{bmBest}{HTML}{B5EAD7}
+\definecolor{bmGood}{HTML}{C7E9C0}
+\definecolor{bmMid}{HTML}{FFE699}
+\definecolor{bmLow}{HTML}{FFC0CB}
+
+% Palette de l'analyse fonctionnelle (L4)
+\definecolor{pocborder}{RGB}{191,144,0}
+\definecolor{resVert}{HTML}{90EE90}
+\definecolor{resJaune}{HTML}{FFE97F}
+\definecolor{resOrange}{HTML}{FFC58A}
+\definecolor{resRougeC}{HTML}{FF9E8A}
+\definecolor{resRouge}{HTML}{FF5C5C}
+
+% ===== Outils de mise en forme des cartes du schéma conceptuel (L1) =====
+\newlist{cbul}{itemize}{1}
+\setlist[cbul]{leftmargin=3.4mm, labelsep=1.7mm, itemsep=2.6pt, topsep=0pt,
+               parsep=0pt, label=\textcolor{cardaccent}{\rule[0.55ex]{1.4mm}{0.6pt}}}
+\colorlet{cardaccent}{cardline}
+\newcommand{\cardsetup}[1]{%
+    \colorlet{cardaccent}{#1}\raggedright
+    \hyphenpenalty=10000\exhyphenpenalty=10000\relax}
+\newcommand{\cardtitle}[2]{%
+    {\bfseries\color{#1}#2}\\[2.5pt]
+    {\color{#1!35!white}\rule{\linewidth}{0.7pt}}\\[3.5pt]}
+
+\lstdefinelanguage{MicroAsm}{
+    sensitive=true,
+    morecomment=[l]{\#},
+    moredelim=[s][\color{addrred}]{@}{:}
+}
+
+\lstdefinelanguage{HexProg}{
+    sensitive=true,
+    morecomment=[l]{;}
+}
+
+\lstdefinelanguage{AsmStd}{
+    sensitive=true,
+    morecomment=[l]{;},
+    morecomment=[l]{\#},
+    morekeywords={
+        MOV,ADD,SUB,MUL,DIV,INC,DEC,CMP,AND,OR,XOR,NOT,
+        JMP,JE,JNE,JG,JL,JGE,JLE,CALL,RET,PUSH,POP,
+        LDA,STA,LOAD,STORE,INPUT,OUTPUT,HALT,NOP
+    }
+}
+
+\lstset{frame=tb,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=none,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{commentgray},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=3,
+   }
+
+\lstset{breaklines=true}
+
+\geometry{a4paper, margin=1in}
+
+% Suppression de l'affichage du mot "Chapitre"
+\titleformat{\chapter}[display]
+    {\normalfont\bfseries\LARGE}
+    {}
+    {0pt}
+    {}
+
+\definecolor{Light}{gray}{.90}
+\sethlcolor{Light}
+
+\let\OldTexttt\texttt
+\renewcommand{\texttt}[1]{\OldTexttt{\hl{#1}}}
+
+\renewcommand{\thechapter}{\arabic{chapter}}
+\renewcommand{\thesection}{\thechapter.\arabic{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+
+\fancyhf{}
+\fancyhead[L]{\DocName}
+\fancyfoot[L]{\DocAuthors}
+\fancyfoot[R]{\thepage\ / \pageref{LastPage}}
+\renewcommand{\headrulewidth}{0 pt}
+\renewcommand{\footrulewidth}{0.2pt}
+\pagestyle{fancy}
+\fancypagestyle{plain}{
+    \fancyhf{}
+    \fancyfoot[R]{\thepage\ / \pageref{LastPage}}
+    \fancyfoot[L]{\DocAuthors}
+    \fancyhead[L]{\DocName}
+}
+
+\graphicspath{ {./img} {../livrable_1/img} }
+
+% Pas de césure dans le texte des boîtes (L5)
+\tikzset{every node/.append style={execute at begin node={\hyphenpenalty=10000\exhyphenpenalty=10000}}}
+
+% Styles communs des diagrammes FAST (L5)
+\tikzset{
+    fast/.style={
+        >={Stealth[length=2.2mm,width=1.8mm]},
+        fct/.style={rectangle, rounded corners=4pt, draw=whyborder, fill=whybg, line width=1.1pt,
+            align=center, font=\footnotesize\bfseries, text=cardink, inner sep=6pt,
+            text width=3.3cm, minimum height=2.2cm},
+        sous/.style={rectangle, rounded corners=4pt, draw=cardline, fill=gray!8, line width=0.9pt,
+            align=center, font=\footnotesize, text=cardink, inner sep=6pt,
+            text width=4.5cm, minimum height=1.35cm},
+        sol/.style={rectangle, rounded corners=4pt, draw=pocborder, fill=bmMid, line width=0.9pt,
+            align=center, font=\footnotesize, text=cardink, inner sep=6pt,
+            text width=4.9cm, minimum height=1.35cm},
+        cmt/.style={font=\scriptsize\itshape, text=cardink, above=1pt},
+        tronc/.style={line width=1pt, draw=cardline, line cap=round},
+        lien/.style={->, line width=1pt, draw=cardline},
+        real/.style={->, line width=0.9pt, draw=pocborder, dotted},
+        noeud/.style={circle, fill=cardline, inner sep=0pt, minimum size=4pt}
+    }
+}
+
+\newcounter{questioncounter}
+\setcounter{questioncounter}{0}
+
+\title{\DocName}
+\author{\DocAuthors}
+\date{\textbf{JUNIA - ISEN - AP4} \url{https://github.com/CharlesBta/Modele-Neuronaux-RD.git}}
+
+\begin{document}
+\maketitle
+
+\chapter*{Lexique}
+\addcontentsline{toc}{chapter}{Lexique}
+
+\medskip
+\begin{longtable}{@{}p{3.9cm}p{11cm}@{}}
+    \textbf{Backend} & Moteur d'exécution d'un simulateur ; Brian2CUDA ajoute par exemple un backend \textbf{GPU} au simulateur Brian. \\[6pt]
+    \textbf{Benchmark} & Test de performance comparant les temps d'exécution entre deux architectures, ici CPU et GPU. \\[6pt]
+    \textbf{C++} & Langage de programmation compilé, proche de la machine, utilisé notamment avec \textbf{CUDA} pour écrire les programmes rapides. \\[6pt]
+    \textbf{Canaux ioniques} & Pores membranaires permettant le passage sélectif d'ions (sodium, potassium) à travers la membrane du neurone. \\[6pt]
+    \textbf{Connectome} & Carte complète des connexions synaptiques entre les neurones d'un réseau. \\[6pt]
+    \textbf{CPU} & \textit{Central Processing Unit}, processeur généraliste traitant les instructions de façon séquentielle. \\[6pt]
+    \textbf{CUDA} & \emph{Compute Unified Device Architecture} : plateforme de \textbf{NVIDIA} pour écrire des programmes qui s'exécutent sur les \textbf{GPU}. \\[6pt]
+    \textbf{Diagramme pieuvre} & Schéma qui place le système au centre de ses éléments extérieurs et trace les fonctions qui les relient. \\[6pt]
+    \textbf{EDO} & Équation Différentielle Ordinaire, équation décrivant l'évolution d'une variable par rapport au temps. \\[6pt]
+    \textbf{Fonction contrainte (FC)} & Limite imposée au système par un élément extérieur ; elle restreint la liberté de conception. \\[6pt]
+    \textbf{Fonction principale (FP)} & Service que le système rend à l'utilisateur, raison d'être du système. \\[6pt]
+    \textbf{Fonction secondaire (FS)} & Service qui complète ou rend possible une fonction principale. \\[6pt]
+    \textbf{Format creux} & Stockage d'une matrice qui ne garde que ses éléments non nuls (par exemple \textbf{CSR}), adapté aux connectomes peu denses. \\[6pt]
+    \textbf{FPGA} & \emph{Field Programmable Gate Array} : puce reprogrammable dont le matériel s'adapte au calcul, alternative au \textbf{GPU} pour les calculs répétitifs. \\[6pt]
+    \textbf{Génération de code} & Production automatique du code \textbf{GPU} à partir d'une description de modèle écrite en langage de haut niveau (\textbf{Python} ou \textbf{Julia}). \\[6pt]
+    \textbf{GPU} & \textit{Graphics Processing Unit}, processeur massivement parallèle conçu pour effectuer un grand nombre de calculs simultanément. \\[6pt]
+    \textbf{Hodgkin-Huxley} & Modèle biophysique décrivant l'évolution du potentiel membranaire d'un neurone à partir de canaux ioniques sodium et potassium. \\[6pt]
+    \textbf{JAX} & Bibliothèque \textbf{Python} de calcul différentiable avec vectorisation automatique (vmap). \\[6pt]
+    \textbf{Jonction communicante} & \emph{Gap junction} : couplage électrique direct et bidirectionnel entre deux cellules voisines. \\[6pt]
+    \textbf{Julia} & Langage de programmation scientifique haut niveau, proche du \textbf{C++} en performance. \\[6pt]
+    \textbf{MPI} & \emph{Message Passing Interface} : norme d'échange de messages entre machines, utilisée pour répartir une simulation sur plusieurs nœuds de calcul. \\[6pt]
+    \textbf{NEST} & Simulateur de référence pour les grandes populations de neurones simplifiés. \\[6pt]
+    \textbf{NVLink} & Liaison matérielle à très haut débit entre \textbf{GPU} \textbf{NVIDIA}. \\[6pt]
+    \textbf{POC} & \emph{Proof of Concept} : preuve de concept, version réduite du système qui démontre la faisabilité de ses fonctions essentielles. \\[6pt]
+    \textbf{Potentiel membranaire} & Différence de potentiel électrique entre l'intérieur et l'extérieur de la membrane d'un neurone. \\[6pt]
+    \textbf{Python} & Langage de programmation interprété, utilisé par le socle de code fourni (solveur de référence, générateurs de connectomes). \\[6pt]
+    \textbf{PyTorch} & Bibliothèque \textbf{Python} d'apprentissage automatique, aussi utilisée pour du calcul \textbf{GPU} généraliste. \\[6pt]
+    \textbf{Référence CPU} & Implémentation sur \textbf{CPU} qui sert d'étalon de justesse et de temps pour calculer le speedup. \\[6pt]
+    \textbf{RTX 5090} & Carte graphique haut de gamme de NVIDIA, équipée d'environ 21\,760 cœurs de calcul parallèle. \\[6pt]
+    \textbf{Speedup} & Rapport entre le temps d'exécution sur CPU et sur GPU, mesurant le gain apporté par le GPU. \\[6pt]
+    \textbf{Synapse} & Jonction entre deux neurones assurant la transmission du signal électrique d'un neurone à un autre. \\[6pt]
+    \textbf{Tri croisé} & Méthode de hiérarchisation qui compare les fonctions deux à deux et cumule des points d'importance. \\[6pt]
+    \textbf{vmap} & Opération de vectorisation automatique de \textbf{JAX} et \textbf{PyTorch} : une même fonction s'applique à un grand nombre d'éléments en parallèle. \\[6pt]
+    \textbf{VRAM} & Mémoire embarquée sur la carte graphique, distincte de la mémoire de l'ordinateur. \\
+\end{longtable}
+
+\tableofcontents
+
+\chapter*{Présentation du rapport}
+\addcontentsline{toc}{chapter}{Présentation du rapport}
+
+Ce rapport réunit, dans l'ordre du projet, les cinq livrables de la phase d'études : la reformulation du sujet (partie~\ref{part:l1}), la note de clarification (partie~\ref{part:l2}), l'état de l'art sous forme de benchmark (partie~\ref{part:l3}), l'analyse fonctionnelle (partie~\ref{part:l4}) et le rapport de conception (partie~\ref{part:l5}). Il se termine par le retour personnel de chaque membre du groupe.
+
+\part{Livrable 1 : Reformulation du sujet}
+\label{part:l1}
+\input{partie_1_corps}
+
+\part{Livrable 2 : Note de clarification}
+\label{part:l2}
+\input{partie_2_corps}
+
+\part{Livrable 3 : État de l'art sous forme de benchmark}
+\label{part:l3}
+\input{partie_3_corps}
+
+\part{Livrable 4 : Analyse fonctionnelle}
+\label{part:l4}
+\input{partie_4_corps}
+
+\part{Livrable 5 : Rapport de conception}
+\label{part:l5}
+\input{partie_5_corps}
+
+\input{bibliographie}
+
+\part{Retour personnel}
+\label{part:rex}
+
+\chapter{Da Silva Tristan}
+Ayant déjà travaillé dans l'électronique et l'informatique pour la santé, j’ai choisi ce sujet pour approfondir ces deux domaines, tout en partant de zéro sur les modèles biophysiques de neurosciences comme celui de Hodgkin-Huxley. Au début, la gestion de projet et l'analyse fonctionnelle m’ont semblé assez floues et très théoriques.
+
+Le premier travail de reformulation m'a permis de poser une première représentation du projet et de sortir de l'impression de flou du démarrage. Même si ma compréhension restait encore partielle à ce stade, le travail en équipe a permis de mutualiser nos connaissances et de faciliter l'assimilation du sujet.
+
+La deuxième étape, la note de cadrage, a consisté à mettre au propre les objectifs, le périmètre et les contraintes, ce qui m'a aidé à bien cerner le besoin et à savoir exactement vers quoi nous allions.
+
+J'ai ensuite trouvé la partie sur l'état de l'art et le benchmark très utile, car elle m'a permis de prendre connaissance des technologies existantes et de bien identifier les verrous techniques liés à l'optimisation GPU. C'est l'analyse fonctionnelle qui m'a le plus intéressé : la matrice de tri croisé et la hiérarchisation des fonctions ont permis de mettre en évidence ce qui était le plus urgent, réaliste et prioritaire à intégrer dans notre POC.
+
+Enfin, définir l'architecture technique et le choix des sous-ensembles a été très formateur, car cela a concrétisé la solution et m'a donné une vision claire de ce qu'il reste à implémenter.
+
+\chapter{Battaglia Charles-Antoine}
+
+J'ai choisi ce sujet parce qu'il me semblait proche de l'approche réelle d'un ingénieur de recherche : un besoin concret venu d'un laboratoire, une question à instruire, des mesures à produire. Ce lien direct avec la réalité d'une recherche donnait du sens au travail, et j'avais le sentiment que mes compétences purement informatiques pouvaient avoir un impact au-delà du numérique.
+
+Cette première phase du projet m'a permis d'explorer en profondeur un domaine nouveau pour moi : la simulation de réseaux de neurones Hodgkin-Huxley et l'accélération sur GPU. Autour d'une question simple, \og le GPU vaut-il le coup face au CPU ? \fg, j'ai construit pas à pas un vocabulaire métier, du connectome au speedup, en rédigeant les cinq livrables.
+
+J'ai pris progressivement une posture de coordination au sein de l'équipe : répartir les tâches, suivre l'avancement de chacun aux séances, et faire le lien entre les remarques des encadrants et les documents. Une grande part de mon travail a été de la consolidation : garder le même vocabulaire d'un livrable à l'autre, relire les chiffres du tri croisé, harmoniser les schémas. 
+
+La principale difficulté a été d'intégrer les retours reçus en cours de route sans casser la cohérence d'ensemble : chaque remarque des encadrants se répercute sur plusieurs livrables à la fois. J'ai appris à écouter, trancher et faire converger le groupe sur une idée commune. Cela permet de gagner en efficacité et de produire un document final plus solide.
+
+\chapter{Botté-Magalhaes Jules}
+J’ai choisi ce sujet parce que je souhaite m’orienter vers la Data et l’IA. J’y voyais une occasion de découvrir les réseaux de neurones et d’aborder la simulation ainsi que le calcul sur GPU. J’ai surtout contribué aux recherches bibliographiques, au premier livrable et à la relecture des documents.
+
+Au début, j’ai eu du mal à comprendre les notions biophysiques. Le modèle de Hodgkin-Huxley, les canaux ioniques et les synapses étaient nouveaux pour moi. J’ai dû prendre le temps de comprendre ce vocabulaire pour mieux suivre le projet. L’optimisation sur GPU reste aussi un point que je dois approfondir.
+
+La recherche documentaire m’a demandé beaucoup de tri. Il y avait énormément d’articles et de brevets, mais tous ne répondaient pas à notre sujet. Certains étaient également difficiles à comprendre avec mes connaissances de départ. J’ai appris à mieux cibler mes recherches, même si sélectionner les documents les plus utiles n’était pas toujours évident.
+
+Enfin, les relectures collectives m’ont aidé à mieux comprendre les différentes parties du projet et à repérer les passages qui manquaient de cohérence. Lire les textes des autres m’a aussi fait découvrir d’autres façons de présenter les idées et de structurer un rapport. Pour un prochain projet, je commencerais plus tôt un glossaire et des notes de lecture pour retrouver plus facilement les notions et les sources utiles. 
+
+
+\chapter{Gauthier Keanu}
+Mon rôle. On était cinq sur le projet. De mon côté, je me suis surtout occupé de la recherche bibliographique (l’état de l’art du livrable 3) et, dans une moindre mesure, de la coordination : répartir les livrables entre nous et vérifier chaque semaine qu’on tenait les échéances.
+Événement marquant. Ce qui m’a le plus marqué, c’est le moment où on a compris que le modèle de Hodgkin-Huxley ne servait en fait que de banc d’essai, et que l’encadrant visait des réseaux de cellules pancréatiques. On avait lu le sujet de façon trop littérale au départ. Du coup,
+la modularité du code n’était plus juste une bonne pratique, c’est devenu une vraie contrainte de
+travail pour nous. La prochaine fois, je poserai ce genre de questions au commanditaire dès le début
+au lieu de m’en tenir à l’énoncé.
+Difficulté rencontrée. Le sujet était dense. Biophysique du neurone, équations différentielles, calcul sur GPU : rien de tout ça ne me était familier avant le projet. Plutôt que de chercher à tout
+comprendre d’un coup, je suis reparti du code fourni, parce qu’il m’aidait à relier les équations à
+quelque chose de concret. J’ai aussi lu la littérature par étapes, d’abord des synthèses, puis des articles plus techniques quand j’en avais réellement besoin. Ce que j’en retiens, c’est qu’on n’a pas
+besoin de tout maîtriser pour avancer. Il faut juste atteindre le niveau demandé par l’étape en cours.
+Compétences développées. J’ai beaucoup progressé sur la lecture ciblée de sources et sur le fait de vérifier ce qu’on trouve avant de l’utiliser. L’analyse fonctionnelle et la rédaction en LATEX m’ont aussi pris du temps au début, mais ça rentre. Côté équipe, j’ai appris à découper le travail et à formaliser les décisions par écrit, parce qu’à l’oral on oublie facilement la moitié de ce qui a été
+dit.
+
+Ce que je ferais différemment. Au semestre 8, si c’était à refaire : préparer les questions pour
+le commanditaire dès la première semaine, mettre en place un planning partagé dès le départ, et passer plus vite au concret avec le code CPU puis un premier noyau GPU. On a perdu du temps à
+vouloir cadrer avant d’essayer.
+
+\chapter{Fraysse Ianis}
+J’ai choisi ce projet parce qu’il me permettait d’apprendre comment on simule numériquement des modèles de neurones : faire reproduire par un ordinateur le comportement électrique d’un réseau de neurones biologiques, à partir d’équations, est un sujet qui m’attirait sans que j’aie eu l’occasion de l’aborder.
+
+J’ai surtout travaillé sur les schémas (carte conceptuelle, bête à cornes, synoptique, avis sur le FAST) et participé à la rédaction et relecture des livrables 1,2, 4, 5. J’ai moins contribué au livrable 3 car j’étais moins à l’aise avec le benchmark d’articles techniques sur le GPU.
+
+En faisant les schémas, j’ai appris qu’on ne peut pas dessiner un schéma sur un sujet qu’on ne comprend pas : la carte conceptuelle a obligé le groupe à se mettre d’accord sur les étapes du projet. Le travail en groupe m’a aussi appris à confronter mon point de vue à celui des autres, à répartir les tâches selon les points forts de chacun et à m’appuyer sur leurs explications quand je bloquais.
+
+J’ai aussi compris que le but n’était pas de passer sur GPU à tout prix, mais de savoir s’il valait le coup.
+
+Ma principale difficulté a été d’entrer dans un sujet qui était assez vaste et loin de mes connaissances; je l’ai surmontée en partant des idées générales et des explications du groupe. 
+
+
+\end{document}
